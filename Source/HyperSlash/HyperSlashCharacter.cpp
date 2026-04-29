@@ -10,6 +10,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
+#include "Camera/CameraActor.h"
 
 AHyperSlashCharacter::AHyperSlashCharacter()
 {
@@ -27,21 +29,6 @@ AHyperSlashCharacter::AHyperSlashCharacter()
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
-	// Create the camera boom component
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->SetUsingAbsoluteRotation(true);
-	CameraBoom->TargetArmLength = 800.f;
-	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
-	CameraBoom->bDoCollisionTest = false;
-
-	// Create the camera component
-	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
-
-	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	TopDownCameraComponent->bUsePawnControlRotation = false;
-
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -51,12 +38,30 @@ void AHyperSlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// stub
+	AActor* TargetCamera = nullptr;
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		// 1. Cherche la caméra taggée "MainCamera"
+		for (TActorIterator<ACameraActor> It(GetWorld()); It; ++It)
+		{
+			if (It->ActorHasTag("GameplayCamera"))
+			{
+				TargetCamera = *It;
+				break;
+			}
+		}
+
+
+		// 3. Applique la vue
+		if (TargetCamera)
+		{
+			PC->SetViewTargetWithBlend(TargetCamera, 0.5f);
+		}
+	}
 }
 
 void AHyperSlashCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-
-	// stub
 }

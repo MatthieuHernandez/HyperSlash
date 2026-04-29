@@ -66,18 +66,13 @@ public:
 	/** Constructor */
 	AHyperSlashPlayerController();
 
+	virtual void Tick(float DeltaSeconds) override;
+
 protected:
 
 	/** Initialize input bindings */
 	virtual void SetupInputComponent() override;
 	
-	/** Input handlers */
-	void OnInputStarted();
-	void OnSetDestinationTriggered();
-	void OnSetDestinationReleased();
-	void OnTouchTriggered();
-	void OnTouchReleased();
-
 	/** Helper function to get the move destination */
 	void UpdateCachedDestination();
 };
