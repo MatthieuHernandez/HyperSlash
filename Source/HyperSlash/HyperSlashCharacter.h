@@ -17,6 +17,11 @@ class AHyperSlashCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UAnimSequence* AttackAnimation;
+
 public:
 
 	/** Constructor */
@@ -27,5 +32,8 @@ public:
 
 	/** Update */
 	virtual void Tick(float DeltaSeconds) override;
+
+	UFUNCTION()
+	void PlayAttackAnimation();
 };
 

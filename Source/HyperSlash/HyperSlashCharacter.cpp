@@ -42,7 +42,6 @@ void AHyperSlashCharacter::BeginPlay()
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (PC)
 	{
-		// 1. Cherche la caméra taggée "MainCamera"
 		for (TActorIterator<ACameraActor> It(GetWorld()); It; ++It)
 		{
 			if (It->ActorHasTag("GameplayCamera"))
@@ -51,9 +50,6 @@ void AHyperSlashCharacter::BeginPlay()
 				break;
 			}
 		}
-
-
-		// 3. Applique la vue
 		if (TargetCamera)
 		{
 			PC->SetViewTargetWithBlend(TargetCamera, 0.5f);
@@ -64,4 +60,13 @@ void AHyperSlashCharacter::BeginPlay()
 void AHyperSlashCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+}
+
+void AHyperSlashCharacter::PlayAttackAnimation()
+{
+	if (!AttackAnimation) return;
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		AnimInstance->PlaySlotAnimationAsDynamicMontage(AttackAnimation, FName("DefaultSlot"));
+	}
 }

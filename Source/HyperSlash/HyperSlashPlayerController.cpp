@@ -56,6 +56,19 @@ void AHyperSlashPlayerController::SetupInputComponent()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+		{
+			EnhancedInputComponent->BindAction(SetAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnAttack);
+		}
+	}
+}
+
+void AHyperSlashPlayerController::OnAttack()
+{
+	AHyperSlashCharacter* MyCharacter = Cast<AHyperSlashCharacter>(GetPawn());
+	if (MyCharacter)
+	{
+		MyCharacter->PlayAttackAnimation();
 	}
 }
 

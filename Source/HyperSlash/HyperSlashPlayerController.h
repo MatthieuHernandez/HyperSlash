@@ -29,6 +29,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = AI)
 	TObjectPtr<UPathFollowingComponent> PathFollowingComponent;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> SetAttackInputAction;
+
 	/** Time Threshold to know if it was a short press */
 	UPROPERTY(EditAnywhere, Category="Input")
 	float ShortPressThreshold;
@@ -75,6 +78,8 @@ protected:
 	
 	/** Helper function to get the move destination */
 	void UpdateCachedDestination();
+
+	void OnAttack();
 };
 
 
