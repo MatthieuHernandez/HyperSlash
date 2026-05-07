@@ -24,10 +24,12 @@ bool AHyperSlashGameMode::CanSpawnEnemies()
 
 void AHyperSlashGameMode::IncreaseEnemyCount()
 {
+	UE_LOG(LogTemp, Warning, TEXT("EnemyCount++"));
 	EnemyCount++;
 }
 
 void AHyperSlashGameMode::DecreaseEnemyCount()
 {
+	UE_LOG(LogTemp, Warning, TEXT("EnemyCount--"));
 	EnemyCount--;
 }

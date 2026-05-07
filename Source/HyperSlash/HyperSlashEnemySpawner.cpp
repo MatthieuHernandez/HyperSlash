@@ -35,7 +35,7 @@ void AHyperSlashEnemySpawner::BeginPlay()
 	}
 
 	// set up the spawn timer
-	GetWorld()->GetTimerManager().SetTimer(SpawnTimer, this, &AHyperSlashEnemySpawner::SpawnEnemyGroup, SpawnGroupDelay, true);
+	GetWorld()->GetTimerManager().SetTimer(SpawnEnemyGroupTimer, this, &AHyperSlashEnemySpawner::SpawnEnemyGroup, SpawnGroupDelay, true);
 
 	// spawn the first group of enemies
 	SpawnEnemyGroup();
@@ -45,23 +45,20 @@ void AHyperSlashEnemySpawner::BeginPlay()
 void AHyperSlashEnemySpawner::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
+	GetWorld()->GetTimerManager().ClearTimer(SpawnEnemyGroupTimer);
+	GetWorld()->GetTimerManager().ClearTimer(SpawnEnemyTimer);
 }
 
 void AHyperSlashEnemySpawner::SpawnEnemyGroup()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SpawnEnemyGroup triggered"));
 	// reset the group spawn counter
 	SpawnCount = 0;
 
-	UE_LOG(LogTemp, Warning, TEXT("A"));
 	// check if we're still under the max NPC cap
 	if (AHyperSlashGameMode* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("B"));
 		if (GM->CanSpawnEnemies())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("C"));
 			SpawnEnemy();
 		}
 	}
@@ -69,17 +66,18 @@ void AHyperSlashEnemySpawner::SpawnEnemyGroup()
 
 void AHyperSlashEnemySpawner::SpawnEnemy()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SpawnEnemy triggered"));
-	FTransform SpawnTransform;
-
 	// find a random point around the spawner
 	FVector SpawnLoc;
 	if (UNavigationSystemV1::K2_GetRandomReachablePointInRadius(GetWorld(), GetActorLocation(), SpawnLoc, 600, NavData))
 	{
-		SpawnTransform.SetLocation(SpawnLoc);
+		FTransform SpawnTransform(GetActorRotation(), SpawnLoc, FVector::OneVector);
 
 		// spawn the NPC
-		ATwinStickNPC* NPC = GetWorld()->SpawnActor<ATwinStickNPC>(EnemyClass, SpawnTransform);
+		AHyperSlashEnemy* enemy = GetWorld()->SpawnActor<AHyperSlashEnemy>(EnemyClass, SpawnTransform);
+		if (enemy)
+		{
+			enemy->SpawnDefaultController();
+		}
 	}
 
 	// increase the spawn counter
@@ -88,7 +86,7 @@ void AHyperSlashEnemySpawner::SpawnEnemy()
 	// do we still have enemies left to spawn?
 	if (SpawnCount < SpawnGroupSize)
 	{
-		GetWorld()->GetTimerManager().SetTimer(SpawnTimer, this, &AHyperSlashEnemySpawner::SpawnEnemy, FMath::RandRange(0.33f, 0.66f), false);
+		GetWorld()->GetTimerManager().SetTimer(SpawnEnemyTimer, this, &AHyperSlashEnemySpawner::SpawnEnemy, FMath::RandRange(0.33f, 0.66f), false);
 	}
 
 }

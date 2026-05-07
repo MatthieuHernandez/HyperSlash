@@ -70,3 +70,22 @@ void AHyperSlashCharacter::PlayAttackAnimation()
 		AnimInstance->PlaySlotAnimationAsDynamicMontage(AttackAnimation, FName("DefaultSlot"));
 	}
 }
+
+void AHyperSlashCharacter::SpawnAttack()
+{
+	FActorSpawnParameters Params;
+	Params.Owner = this;
+	Params.Instigator = this;
+
+	GetWorld()->SpawnActor<AHyperSlashAttack>(
+		AttackClass, // Not UE-friendly
+		GetActorLocation(),
+		GetActorRotation(),
+		Params);
+}
+
+void AHyperSlashCharacter::PerformAttack()
+{
+	PlayAttackAnimation();
+	SpawnAttack();
+}

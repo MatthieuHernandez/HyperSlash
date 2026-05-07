@@ -68,7 +68,8 @@ void AHyperSlashPlayerController::OnAttack()
 	AHyperSlashCharacter* MyCharacter = Cast<AHyperSlashCharacter>(GetPawn());
 	if (MyCharacter)
 	{
-		MyCharacter->PlayAttackAnimation();
+		MyCharacter->PerformAttack();
+
 	}
 }
 

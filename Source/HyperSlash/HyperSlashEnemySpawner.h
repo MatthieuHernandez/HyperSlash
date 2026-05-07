@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "TwinStickNPC.h"
+#include "HyperSlashEnemy.h"
 #include "HyperSlashEnemySpawner.generated.h"
 
 class ARecastNavMesh;
@@ -17,11 +17,11 @@ protected:
 
 	/** Type of NPC to spawn */
 	UPROPERTY(EditAnywhere, Category = "Spawner")
-	TSubclassOf<ATwinStickNPC> EnemyClass;
+	TSubclassOf<AHyperSlashEnemy> EnemyClass;
 
 	/** Time delay between enemy group spawns */
 	UPROPERTY(EditAnywhere, Category = "Spawner", meta = (ClampMin = 0, ClampMax = 20, Units = "s"))
-	float SpawnGroupDelay = 5.0f;
+	float SpawnGroupDelay = 2.0f;
 
 	/** Radius around the spawner where it can spawn enemies */
 	UPROPERTY(EditAnywhere, Category = "Spawner", meta = (ClampMin = 0, ClampMax = 20, Units = "cm"))
@@ -35,8 +35,11 @@ protected:
 	/** Number of enemies spawned in the current group */
 	int32 SpawnCount = 0;
 
-	/** Enemy group spawn timer */
-	FTimerHandle SpawnTimer;
+	/** NPC group spawn timer */
+	FTimerHandle SpawnEnemyGroupTimer;
+
+	/** NPC spawn timer */
+	FTimerHandle SpawnEnemyTimer;
 
 	/** Pointer to the recast nav mesh actor, used to provide enemy spawn locations */
 	TObjectPtr<ARecastNavMesh> NavData;
