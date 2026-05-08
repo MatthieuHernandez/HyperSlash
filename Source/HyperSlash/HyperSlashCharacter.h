@@ -3,6 +3,7 @@
 #pragma once
 
 #include "HyperSlashAttack.h"
+#include "HyperSlashDashAttack.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "HyperSlashCharacter.generated.h"
@@ -20,17 +21,23 @@ class AHyperSlashCharacter : public ACharacter
 
 private:
 	void PlayAttackAnimation();
+	void PlayDashAttackAnimation();
 	void SpawnAttack();
+	void SpawnDashAttack();
 
 protected:
 
-
-	/** Type of AoE attack actor to spawn */
-	UPROPERTY(EditAnywhere, Category = "Attack")
+	UPROPERTY(EditAnywhere, Category = "Action")
 	TSubclassOf<AHyperSlashAttack> AttackClass;
+
+	UPROPERTY(EditAnywhere, Category = "Action")
+	TSubclassOf<AHyperSlashDashAttack> DashAttackClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	UAnimSequence* AttackAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UAnimSequence* DashAttackAnimation;
 
 public:
 
@@ -45,5 +52,8 @@ public:
 
 	UFUNCTION()
 	void PerformAttack();
+
+	UFUNCTION()
+	void PerformDashAttack();
 };
 

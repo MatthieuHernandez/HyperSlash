@@ -59,16 +59,29 @@ void AHyperSlashPlayerController::SetupInputComponent()
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 		{
 			EnhancedInputComponent->BindAction(SetAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnAttack);
+			EnhancedInputComponent->BindAction(SetDashAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnDashAttack);
 		}
 	}
 }
 
 void AHyperSlashPlayerController::OnAttack()
 {
+	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashPlayerController::OnAttack called"));
 	AHyperSlashCharacter* MyCharacter = Cast<AHyperSlashCharacter>(GetPawn());
 	if (MyCharacter)
 	{
 		MyCharacter->PerformAttack();
+
+	}
+}
+
+void AHyperSlashPlayerController::OnDashAttack()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashPlayerController::OnDashAttack called"));
+	AHyperSlashCharacter* MyCharacter = Cast<AHyperSlashCharacter>(GetPawn());
+	if (MyCharacter)
+	{
+		MyCharacter->PerformDashAttack();
 
 	}
 }

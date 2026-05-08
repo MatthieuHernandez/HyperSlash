@@ -71,6 +71,16 @@ void AHyperSlashCharacter::PlayAttackAnimation()
 	}
 }
 
+void AHyperSlashCharacter::PlayDashAttackAnimation()
+{
+	if (!AttackAnimation) return;
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		AnimInstance->PlaySlotAnimationAsDynamicMontage(DashAttackAnimation, FName("DefaultSlot"));
+	}
+}
+
+
 void AHyperSlashCharacter::SpawnAttack()
 {
 	FActorSpawnParameters Params;
@@ -78,7 +88,21 @@ void AHyperSlashCharacter::SpawnAttack()
 	Params.Instigator = this;
 
 	GetWorld()->SpawnActor<AHyperSlashAttack>(
-		AttackClass, // Not UE-friendly
+		AttackClass,
+		GetActorLocation(),
+		GetActorRotation(),
+		Params);
+}
+
+void AHyperSlashCharacter::SpawnDashAttack()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashCharacter::SpawnDashAttack called"));
+	FActorSpawnParameters Params;
+	Params.Owner = this;
+	Params.Instigator = this;
+
+	GetWorld()->SpawnActor<AHyperSlashDashAttack>(
+		DashAttackClass,
 		GetActorLocation(),
 		GetActorRotation(),
 		Params);
@@ -88,4 +112,10 @@ void AHyperSlashCharacter::PerformAttack()
 {
 	PlayAttackAnimation();
 	SpawnAttack();
+}
+
+void AHyperSlashCharacter::PerformDashAttack()
+{
+	PlayDashAttackAnimation();
+	SpawnDashAttack();
 }

@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> SetAttackInputAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> SetDashAttackInputAction;
+
 	/** Time Threshold to know if it was a short press */
 	UPROPERTY(EditAnywhere, Category="Input")
 	float ShortPressThreshold;
@@ -43,14 +46,6 @@ protected:
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
-	
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	TObjectPtr<UInputAction> SetDestinationClickAction;
-
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, Category="Input")
-	TObjectPtr<UInputAction> SetDestinationTouchAction;
 
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
@@ -80,6 +75,8 @@ protected:
 	void UpdateCachedDestination();
 
 	void OnAttack();
+
+	void OnDashAttack();
 };
 
 

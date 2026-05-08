@@ -1,4 +1,4 @@
-#include "HyperSlashAttack.h"
+#include "HyperSlashDashAttack.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
@@ -7,7 +7,7 @@
 #include "HyperSlashEnemy.h"
 
 // Sets default values
-AHyperSlashAttack::AHyperSlashAttack()
+AHyperSlashDashAttack::AHyperSlashDashAttack()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -31,27 +31,27 @@ AHyperSlashAttack::AHyperSlashAttack()
 	CollisionSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
-	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AHyperSlashAttack::OnAttackOverlap);
+	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AHyperSlashDashAttack::OnAttackOverlap);
 }
 
 // Called when the game starts or when spawned
-void AHyperSlashAttack::BeginPlay()
+void AHyperSlashDashAttack::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorld()->GetTimerManager().SetTimer(StartAoETimer, this, &AHyperSlashAttack::StartAttack, StartAoETime, false);
-	GetWorld()->GetTimerManager().SetTimer(StopAoETimer, this, &AHyperSlashAttack::StopAttack, StopAoETime, false);
+	GetWorld()->GetTimerManager().SetTimer(StartAoETimer, this, &AHyperSlashDashAttack::StartAttack, StartAoETime, false);
+	GetWorld()->GetTimerManager().SetTimer(StopAoETimer, this, &AHyperSlashDashAttack::StopAttack, StopAoETime, false);
 }
 
-void AHyperSlashAttack::EndPlay(EEndPlayReason::Type EndPlayReason)
+void AHyperSlashDashAttack::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 	GetWorld()->GetTimerManager().ClearTimer(StartAoETimer);
 	GetWorld()->GetTimerManager().ClearTimer(StopAoETimer);
 }
 
-void AHyperSlashAttack::StartAttack()
+void AHyperSlashDashAttack::StartAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashAttack::StartAttack called"));
+	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashDashAttack::StartAttack called"));
 	// raise the active flag
 	bIsAoEActive = true;
 
@@ -70,7 +70,7 @@ void AHyperSlashAttack::StartAttack()
 	}
 }
 
-void AHyperSlashAttack::StopAttack()
+void AHyperSlashDashAttack::StopAttack()
 {
 	bIsAoEActive = false;
 
@@ -80,7 +80,7 @@ void AHyperSlashAttack::StopAttack()
 	Destroy();
 }
 
-void AHyperSlashAttack::OnAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AHyperSlashDashAttack::OnAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// is the explosion active?
 	if (bIsAoEActive)
