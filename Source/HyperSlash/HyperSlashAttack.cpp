@@ -24,7 +24,6 @@ AHyperSlashAttack::AHyperSlashAttack()
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
 	CollisionSphere->SetupAttachment(RootComponent);
 
-	CollisionSphere->SetSphereRadius(750.0f);
 	CollisionSphere->SetNotifyRigidBodyCollision(true);
 	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionSphere->SetCollisionObjectType(ECC_WorldDynamic);
@@ -51,7 +50,6 @@ void AHyperSlashAttack::EndPlay(EEndPlayReason::Type EndPlayReason)
 
 void AHyperSlashAttack::StartAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashAttack::StartAttack called"));
 	// raise the active flag
 	bIsAoEActive = true;
 

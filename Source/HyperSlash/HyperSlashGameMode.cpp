@@ -4,16 +4,11 @@
 
 AHyperSlashGameMode::AHyperSlashGameMode()
 {
-	// stub
-	UE_LOG(LogTemp, Warning, TEXT("Authority: %s"),
-		HasAuthority() ? TEXT("YES") : TEXT("NO"));
 }
 
 void AHyperSlashGameMode::StartPlay()
 {
 	Super::StartPlay();
-
-	UE_LOG(LogTemp, Warning, TEXT("GameMode started"));
 }
 
 
@@ -24,12 +19,10 @@ bool AHyperSlashGameMode::CanSpawnEnemies()
 
 void AHyperSlashGameMode::IncreaseEnemyCount()
 {
-	UE_LOG(LogTemp, Warning, TEXT("EnemyCount++"));
 	EnemyCount++;
 }
 
 void AHyperSlashGameMode::DecreaseEnemyCount()
 {
-	UE_LOG(LogTemp, Warning, TEXT("EnemyCount--"));
 	EnemyCount--;
 }

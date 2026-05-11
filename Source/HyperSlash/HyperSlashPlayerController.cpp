@@ -64,25 +64,31 @@ void AHyperSlashPlayerController::SetupInputComponent()
 	}
 }
 
+void AHyperSlashPlayerController::OrientPlayer(AHyperSlashCharacter* Charactere)
+{
+	UpdateCachedDestination();
+	FVector Direction = CachedDestination - Charactere->GetActorLocation();
+	Direction.Z = 0.0f;
+	Charactere->SetActorRotation(Direction.Rotation());
+}
+
 void AHyperSlashPlayerController::OnAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashPlayerController::OnAttack called"));
-	AHyperSlashCharacter* MyCharacter = Cast<AHyperSlashCharacter>(GetPawn());
-	if (MyCharacter)
+	AHyperSlashCharacter* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
+	if (Charactere)
 	{
-		MyCharacter->PerformAttack();
-
+		OrientPlayer(Charactere);
+		Charactere->PerformAttack();
 	}
 }
 
 void AHyperSlashPlayerController::OnDashAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashPlayerController::OnDashAttack called"));
-	AHyperSlashCharacter* MyCharacter = Cast<AHyperSlashCharacter>(GetPawn());
-	if (MyCharacter)
+	AHyperSlashCharacter* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
+	if (Charactere)
 	{
-		MyCharacter->PerformDashAttack();
-
+		OrientPlayer(Charactere);
+		Charactere->PerformDashAttack();
 	}
 }
 

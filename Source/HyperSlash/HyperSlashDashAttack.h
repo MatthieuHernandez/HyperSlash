@@ -7,7 +7,7 @@
 #include "HyperSlashDashAttack.generated.h"
 
 class UStaticMeshComponent;
-class USphereComponent;
+class UCapsuleComponent;
 
 UCLASS(abstract)
 class HYPERSLASH_API AHyperSlashDashAttack : public AActor
@@ -16,11 +16,11 @@ class HYPERSLASH_API AHyperSlashDashAttack : public AActor
 
 	/** Provides the visual representation for the attack */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* SphereVisual;
+	UStaticMeshComponent* CapsuleVisual;
 
 	/** Provides the collision volume for the attack */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	USphereComponent* CollisionSphere;
+	UCapsuleComponent* CollisionCapsule;
 
 protected:
 

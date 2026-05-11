@@ -35,6 +35,8 @@ protected:
 	/** Collision handling */
 	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
+	void StopStateTreeLogic();
+
 	/** Called from timer to complete the destruction process for this NPC */
 	void DeferredDestroy();
 

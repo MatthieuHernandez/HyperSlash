@@ -11,6 +11,7 @@ class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
 class UPathFollowingComponent;
+class AHyperSlashCharacter;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -70,6 +71,8 @@ protected:
 
 	/** Initialize input bindings */
 	virtual void SetupInputComponent() override;
+
+	void OrientPlayer(AHyperSlashCharacter* Charactere);
 	
 	/** Helper function to get the move destination */
 	void UpdateCachedDestination();

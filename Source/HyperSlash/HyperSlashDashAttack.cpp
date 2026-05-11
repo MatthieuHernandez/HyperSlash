@@ -1,7 +1,7 @@
 #include "HyperSlashDashAttack.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "HyperSlashEnemy.h"
@@ -15,23 +15,23 @@ AHyperSlashDashAttack::AHyperSlashDashAttack()
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
 	// create the mesh that provides the visual representation for the AoE
-	SphereVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere Visual"));
-	SphereVisual->SetupAttachment(RootComponent);
+	CapsuleVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Capsule Visual"));
+	CapsuleVisual->SetupAttachment(RootComponent);
 
-	SphereVisual->SetCollisionProfileName(FName("NoCollision"));
+	CapsuleVisual->SetCollisionProfileName(FName("NoCollision"));
 
-	// create the collision sphere
-	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
-	CollisionSphere->SetupAttachment(RootComponent);
+	// create the collision capsule
+	CollisionCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Collision Capsule"));
+	CollisionCapsule->SetupAttachment(RootComponent);
 
-	CollisionSphere->SetSphereRadius(750.0f);
-	CollisionSphere->SetNotifyRigidBodyCollision(true);
-	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	CollisionSphere->SetCollisionObjectType(ECC_WorldDynamic);
-	CollisionSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
-	CollisionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
-	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AHyperSlashDashAttack::OnAttackOverlap);
+	CollisionCapsule->SetNotifyRigidBodyCollision(true);
+	CollisionCapsule->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionCapsule->SetCollisionObjectType(ECC_WorldDynamic);
+	CollisionCapsule->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CollisionCapsule->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &AHyperSlashDashAttack::OnAttackOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -51,13 +51,12 @@ void AHyperSlashDashAttack::EndPlay(EEndPlayReason::Type EndPlayReason)
 
 void AHyperSlashDashAttack::StartAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashDashAttack::StartAttack called"));
 	// raise the active flag
 	bIsAoEActive = true;
 
 	// find all actors overlapping the NPC
 	TArray<AActor*> Overlaps;
-	CollisionSphere->GetOverlappingActors(Overlaps, AHyperSlashEnemy::StaticClass());
+	CollisionCapsule->GetOverlappingActors(Overlaps, AHyperSlashEnemy::StaticClass());
 
 	// process each overlapping actor
 	for (AActor* Current : Overlaps)

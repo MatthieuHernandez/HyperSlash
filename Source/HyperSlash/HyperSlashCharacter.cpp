@@ -80,7 +80,6 @@ void AHyperSlashCharacter::PlayDashAttackAnimation()
 	}
 }
 
-
 void AHyperSlashCharacter::SpawnAttack()
 {
 	FActorSpawnParameters Params;
@@ -96,7 +95,6 @@ void AHyperSlashCharacter::SpawnAttack()
 
 void AHyperSlashCharacter::SpawnDashAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashCharacter::SpawnDashAttack called"));
 	FActorSpawnParameters Params;
 	Params.Owner = this;
 	Params.Instigator = this;

@@ -6,10 +6,12 @@
 #include "HyperSlashCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/StateTreeAIComponent.h"
 #include "Engine/World.h"
 #include "TwinStickNPCDestruction.h"
 #include "TimerManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AIController.h"
 
 // Sets default values
 AHyperSlashEnemy::AHyperSlashEnemy()
@@ -54,6 +56,7 @@ void AHyperSlashEnemy::EndPlay(EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 	GetWorld()->GetTimerManager().ClearTimer(DestructionTimer);
 }
+
 void AHyperSlashEnemy::Destroyed()
 {
 	if (AHyperSlashGameMode* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
@@ -75,7 +78,6 @@ void AHyperSlashEnemy::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Othe
 
 void AHyperSlashEnemy::ProjectileImpact(const FVector& ForwardVector)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHyperSlashEnemy::ProjectileImpact triggered"));
 	// only handle damage if we haven't been hit yet
 	if (bHit)
 	{
@@ -101,9 +103,21 @@ void AHyperSlashEnemy::ProjectileImpact(const FVector& ForwardVector)
 	GetWorld()->GetTimerManager().SetTimer(DestructionTimer, this, &AHyperSlashEnemy::DeferredDestroy, DeferredDestructionTime, false);
 }
 
+void AHyperSlashEnemy::StopStateTreeLogic()
+{
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		if (UStateTreeAIComponent* StateTreeComponent = AIController->FindComponentByClass<UStateTreeAIComponent>())
+		{
+			StateTreeComponent->StopLogic(TEXT("Enemy destroyed"));
+		}
+	}
+}
+
+
 void AHyperSlashEnemy::DeferredDestroy()
 {
-	// destroy this actor
+	StopStateTreeLogic();
 	Destroy();
 }
 

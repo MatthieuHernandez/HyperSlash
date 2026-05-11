@@ -19,8 +19,8 @@ class AHyperSlashGameMode : public AGameModeBase
 protected:
 
 	/** Max number of enemies to allow in the level at once */
-	UPROPERTY(EditAnywhere, Category = "Gameplay", meta = (ClampMin = 0, ClampMax = 100))
-	int32 MaxEnemiesAtOnce = 10;
+	UPROPERTY(EditAnywhere, Category = "Gameplay", meta = (ClampMin = 0, ClampMax = 1000))
+	int32 MaxEnemiesAtOnce = 300;
 
 	/** Current number of enemies in the level */
 	int32 EnemyCount = 0;

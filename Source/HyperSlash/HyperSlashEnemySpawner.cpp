@@ -8,6 +8,8 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "TwinStickNPC.h"
+#include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
 
 // Sets default values
 AHyperSlashEnemySpawner::AHyperSlashEnemySpawner()
@@ -63,21 +65,53 @@ void AHyperSlashEnemySpawner::SpawnEnemyGroup()
 		}
 	}
 }
+FVector AHyperSlashEnemySpawner::GetRandomSpawnLocation()
+{
+	FVector SpawnLocation = FVector::ZeroVector;
+
+	const int32 Side = FMath::RandRange(0, 3);
+	const auto Top = 4040.0;
+	const auto Bot = -2760.0;
+	const auto W = 6200.0;
+
+
+	switch (Side)
+	{
+	case 0: // Left
+		SpawnLocation.X = FMath::RandRange(Bot, Top);
+		SpawnLocation.Y = -W;
+		break;
+
+	case 1: // Right
+		SpawnLocation.X = FMath::RandRange(Bot, Top);
+		SpawnLocation.Y = W;
+		break;
+
+	case 2: // Top
+		SpawnLocation.X = Top;
+		SpawnLocation.Y = FMath::RandRange(-W, W);
+		break;
+
+	case 3: // Bottom
+		SpawnLocation.X = Bot;
+		SpawnLocation.Y = FMath::RandRange(-W, W);
+		break;
+
+	default:
+		return FVector::ZeroVector;
+	}
+	return SpawnLocation;
+}
 
 void AHyperSlashEnemySpawner::SpawnEnemy()
 {
-	// find a random point around the spawner
-	FVector SpawnLoc;
-	if (UNavigationSystemV1::K2_GetRandomReachablePointInRadius(GetWorld(), GetActorLocation(), SpawnLoc, 600, NavData))
-	{
-		FTransform SpawnTransform(GetActorRotation(), SpawnLoc, FVector::OneVector);
+	FTransform SpawnTransform(GetActorRotation(), GetRandomSpawnLocation(), FVector::OneVector);
 
-		// spawn the NPC
-		AHyperSlashEnemy* enemy = GetWorld()->SpawnActor<AHyperSlashEnemy>(EnemyClass, SpawnTransform);
-		if (enemy)
-		{
-			enemy->SpawnDefaultController();
-		}
+	// spawn the Enemy
+	AHyperSlashEnemy* enemy = GetWorld()->SpawnActor<AHyperSlashEnemy>(EnemyClass, SpawnTransform);
+	if (enemy)
+	{
+		enemy->SpawnDefaultController();
 	}
 
 	// increase the spawn counter
@@ -86,7 +120,6 @@ void AHyperSlashEnemySpawner::SpawnEnemy()
 	// do we still have enemies left to spawn?
 	if (SpawnCount < SpawnGroupSize)
 	{
-		GetWorld()->GetTimerManager().SetTimer(SpawnEnemyTimer, this, &AHyperSlashEnemySpawner::SpawnEnemy, FMath::RandRange(0.33f, 0.66f), false);
+		GetWorld()->GetTimerManager().SetTimer(SpawnEnemyTimer, this, &AHyperSlashEnemySpawner::SpawnEnemy, 0.1f, false); //FMath::RandRange(0.33f, 0.66f)
 	}
-
 }
