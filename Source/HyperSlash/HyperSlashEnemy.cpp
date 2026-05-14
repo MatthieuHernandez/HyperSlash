@@ -49,6 +49,7 @@ void AHyperSlashEnemy::BeginPlay()
 	{
 		GM->IncreaseEnemyCount();
 	}
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AHyperSlashEnemy::OnHit);
 }
 
 void AHyperSlashEnemy::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -121,3 +122,16 @@ void AHyperSlashEnemy::DeferredDestroy()
 	Destroy();
 }
 
+void AHyperSlashEnemy::OnHit(
+	UPrimitiveComponent* HitComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse,
+	const FHitResult& Hit)
+{
+	auto* Player = Cast<AHyperSlashCharacter>(OtherActor);
+	if (Player)
+	{
+		Player->TakeDamage();
+	}
+}

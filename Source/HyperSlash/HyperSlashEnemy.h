@@ -40,6 +40,15 @@ protected:
 	/** Called from timer to complete the destruction process for this NPC */
 	void DeferredDestroy();
 
+	/** Called When hit an actor*/
+	UFUNCTION()
+	void OnHit(
+		UPrimitiveComponent* HitComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		FVector NormalImpulse,
+		const FHitResult& Hit);
+
 public:	
 
 	/** If true, this NPC has already been hit by a projectile and is being destroyed. Exposed to BP so it can be read by StateTree */

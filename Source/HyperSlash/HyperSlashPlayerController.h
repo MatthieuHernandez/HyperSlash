@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -64,6 +62,8 @@ public:
 
 	/** Constructor */
 	AHyperSlashPlayerController();
+
+	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
 

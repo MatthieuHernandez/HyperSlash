@@ -17,6 +17,7 @@ AHyperSlashCharacter::AHyperSlashCharacter()
 {
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
@@ -116,4 +117,18 @@ void AHyperSlashCharacter::PerformDashAttack()
 {
 	PlayDashAttackAnimation();
 	SpawnDashAttack();
+}
+
+void AHyperSlashCharacter::TakeDamage()
+{
+	Health--;
+	UE_LOG(LogTemp, Warning, TEXT("Health = %d"), Health);
+	if (Health <= 0)
+	{
+		Die();
+	}
+}
+
+void AHyperSlashCharacter::Die() {
+	UE_LOG(LogTemp, Warning, TEXT("Player Dead"));
 }

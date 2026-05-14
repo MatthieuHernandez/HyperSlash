@@ -27,6 +27,9 @@ private:
 
 protected:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	int32 Health = 3;
+
 	UPROPERTY(EditAnywhere, Category = "Action")
 	TSubclassOf<AHyperSlashAttack> AttackClass;
 
@@ -55,5 +58,10 @@ public:
 
 	UFUNCTION()
 	void PerformDashAttack();
+
+	void TakeDamage();
+
+	UFUNCTION()
+	void Die();
 };
 

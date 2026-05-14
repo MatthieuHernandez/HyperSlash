@@ -23,10 +23,24 @@ AHyperSlashPlayerController::AHyperSlashPlayerController()
 	PathFollowingComponent = CreateDefaultSubobject<UPathFollowingComponent>(TEXT("Path Following Component"));
 
 	// configure the controller
-	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
 	CachedDestination = FVector::ZeroVector;
 	FollowTime = 0.f;
+}
+
+void AHyperSlashPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetHideCursorDuringCapture(false);
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+	SetInputMode(InputMode);
+
+	bShowMouseCursor = true;
+	bEnableClickEvents = true;
+	bEnableMouseOverEvents = true;
 }
 
 void AHyperSlashPlayerController::Tick(float DeltaSeconds)
