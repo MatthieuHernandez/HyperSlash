@@ -2,9 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Direction.h"
 #include "HyperSlashEnemy.generated.h"
 
 class ATwinStickNPCDestruction;
+class AHyperSlashCharacter;
 
 UCLASS(abstract)
 class AHyperSlashEnemy : public ACharacter
@@ -40,6 +42,8 @@ protected:
 	/** Called from timer to complete the destruction process for this NPC */
 	void DeferredDestroy();
 
+	Direction GetHitDirection(AHyperSlashCharacter* Player);
+
 	/** Called When hit an actor*/
 	UFUNCTION()
 	void OnHit(
@@ -48,6 +52,7 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		FVector NormalImpulse,
 		const FHitResult& Hit);
+
 
 public:	
 

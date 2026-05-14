@@ -122,6 +122,27 @@ void AHyperSlashEnemy::DeferredDestroy()
 	Destroy();
 }
 
+Direction AHyperSlashEnemy::GetHitDirection(AHyperSlashCharacter* Player)
+{
+	FVector DirectionToEnemy =
+		(GetActorLocation() - Player->GetActorLocation()).GetSafeNormal();
+	FVector PlayerForward = Player->GetActorForwardVector();
+	FVector PlayerRight = Player->GetActorRightVector();
+	float ForwardDot = FVector::DotProduct(PlayerForward, DirectionToEnemy);
+	float RightDot = FVector::DotProduct(PlayerRight, DirectionToEnemy);
+
+	if (FMath::Abs(ForwardDot) > FMath::Abs(RightDot))
+	{
+		if (ForwardDot > 0.0f) return Direction::Front;
+		else return Direction::Back;
+	}
+	else
+	{
+		if (RightDot > 0.0f) return Direction::Right;
+		else return Direction::Left;
+	}
+}
+
 void AHyperSlashEnemy::OnHit(
 	UPrimitiveComponent* HitComponent,
 	AActor* OtherActor,
@@ -132,6 +153,7 @@ void AHyperSlashEnemy::OnHit(
 	auto* Player = Cast<AHyperSlashCharacter>(OtherActor);
 	if (Player)
 	{
-		Player->TakeDamage();
+		Direction Dir = GetHitDirection(Player);
+		Player->BeHit(Dir);
 	}
 }

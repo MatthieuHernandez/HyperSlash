@@ -48,13 +48,14 @@ void AHyperSlashPlayerController::Tick(float DeltaSeconds)
 	// Update the move destination to wherever the cursor is pointing at
 	UpdateCachedDestination();
 
-	// Move towards mouse pointer or touch
-	APawn* ControlledPawn = GetPawn();
-	if (ControlledPawn != nullptr)
+	// Move towards mouse pointer
+	auto* player = Cast<AHyperSlashCharacter>(GetPawn());
+	if (!Player || !player->CanAct())
 	{
-		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
+		return;
 	}
+	FVector WorldDirection = (CachedDestination - player->GetActorLocation()).GetSafeNormal();
+	player->AddMovementInput(WorldDirection, 1.0, false);
 }
 
 void AHyperSlashPlayerController::SetupInputComponent()

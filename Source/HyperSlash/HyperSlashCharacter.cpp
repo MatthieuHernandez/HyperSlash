@@ -109,26 +109,62 @@ void AHyperSlashCharacter::SpawnDashAttack()
 
 void AHyperSlashCharacter::PerformAttack()
 {
+	if (!CanAct()) return;
 	PlayAttackAnimation();
 	SpawnAttack();
 }
 
 void AHyperSlashCharacter::PerformDashAttack()
 {
+	if (!CanAct()) return;
 	PlayDashAttackAnimation();
 	SpawnDashAttack();
 }
 
-void AHyperSlashCharacter::TakeDamage()
+void AHyperSlashCharacter::BeHit(Direction D)
 {
+	if (!canBeHit) return;
+	canBeHit = false;
+	canAct = false;
 	Health--;
-	UE_LOG(LogTemp, Warning, TEXT("Health = %d"), Health);
 	if (Health <= 0)
 	{
 		Die();
 	}
+	UAnimSequence* AnimSeq = nullptr;
+	switch (D)
+	{
+	case Direction::Front:
+		AnimSeq = HitFrontAnnimation;
+		break;
+	case Direction::Back:
+		AnimSeq = HitBackAnnimation;
+		break;
+	case Direction::Left:
+		AnimSeq = HitLeftAnnimation;
+		break;
+	case Direction::Right:
+		AnimSeq = HitRightAnnimation;
+		break;
+	default:
+		break;
+	}
+	if (AnimSeq) 
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			AnimInstance->PlaySlotAnimationAsDynamicMontage(AnimSeq, FName("DefaultSlot"));
+		}
+	}
+	GetWorldTimerManager().SetTimer(actTimer, [this]() {canAct = true; }, 1.0f, false);
+	GetWorldTimerManager().SetTimer(hitTimer, [this]() {canBeHit = true; }, 1.6f, false);
 }
 
 void AHyperSlashCharacter::Die() {
 	UE_LOG(LogTemp, Warning, TEXT("Player Dead"));
+}
+
+bool AHyperSlashCharacter::CanAct() const
+{
+	return canAct;
 }
