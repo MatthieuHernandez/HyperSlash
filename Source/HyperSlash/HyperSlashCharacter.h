@@ -35,7 +35,7 @@ private:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int32 Health = 3;
+	int32 Health = 5;
 
 	UPROPERTY(EditAnywhere, Category = "Action")
 	TSubclassOf<AHyperSlashAttack> AttackClass;
