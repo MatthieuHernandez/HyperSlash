@@ -54,8 +54,12 @@ void AHyperSlashPlayerController::Tick(float DeltaSeconds)
 	{
 		return;
 	}
-	FVector WorldDirection = (CachedDestination - player->GetActorLocation()).GetSafeNormal();
-	player->AddMovementInput(WorldDirection, 1.0, false);
+	FVector Delta = CachedDestination - player->GetActorLocation();
+	if (Delta.Size() > 100.0f)
+	{
+		FVector WorldDirection = Delta.GetSafeNormal();
+		player->AddMovementInput(WorldDirection, 1.0, false);
+	}
 }
 
 void AHyperSlashPlayerController::SetupInputComponent()
