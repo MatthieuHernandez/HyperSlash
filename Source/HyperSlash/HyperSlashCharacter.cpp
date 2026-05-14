@@ -25,6 +25,7 @@ AHyperSlashCharacter::AHyperSlashCharacter()
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
+	GetCharacterMovement()->bAllowPhysicsRotationDuringAnimRootMotion = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
 	GetCharacterMovement()->bConstrainToPlane = true;
