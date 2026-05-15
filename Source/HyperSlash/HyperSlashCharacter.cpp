@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "HyperSlashCharacter.h"
+#include "HyperSlashGameMode.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -25,7 +26,7 @@ AHyperSlashCharacter::AHyperSlashCharacter()
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bAllowPhysicsRotationDuringAnimRootMotion = true;
+	GetCharacterMovement()->bAllowPhysicsRotationDuringAnimRootMotion = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
 	GetCharacterMovement()->bConstrainToPlane = true;
@@ -152,7 +153,7 @@ void AHyperSlashCharacter::BeHit(Direction D)
 	}
 	if (AnimSeq) 
 	{
-		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		if (auto* AnimInstance = GetMesh()->GetAnimInstance())
 		{
 			AnimInstance->PlaySlotAnimationAsDynamicMontage(AnimSeq, FName("DefaultSlot"));
 		}
@@ -161,8 +162,14 @@ void AHyperSlashCharacter::BeHit(Direction D)
 	GetWorldTimerManager().SetTimer(hitTimer, [this]() {canBeHit = true; }, 1.6f, false);
 }
 
-void AHyperSlashCharacter::Die() {
-	UE_LOG(LogTemp, Warning, TEXT("Player Dead"));
+void AHyperSlashCharacter::Die() 
+{
+	UE_LOG(LogTemp, Warning, TEXT("A"));
+	if (auto* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GetWorldTimerManager().SetTimer(dieTimer, GM, &AHyperSlashGameMode::GameOver, 1.2f, false);
+		UE_LOG(LogTemp, Warning, TEXT("B"));
+	}
 }
 
 bool AHyperSlashCharacter::CanAct() const

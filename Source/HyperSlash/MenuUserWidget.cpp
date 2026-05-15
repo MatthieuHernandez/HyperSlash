@@ -6,7 +6,6 @@
 void UMenuUserWidget::NativeConstruct()
 {
     Super::NativeConstruct();
-
     if (PlayButton && QuitButton)
     {
         PlayButton->OnClicked.AddDynamic(this, &UMenuUserWidget::OnPlayClicked);

@@ -115,7 +115,6 @@ void AHyperSlashEnemy::StopStateTreeLogic()
 	}
 }
 
-
 void AHyperSlashEnemy::DeferredDestroy()
 {
 	StopStateTreeLogic();

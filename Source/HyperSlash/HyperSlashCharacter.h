@@ -26,6 +26,7 @@ private:
 
 	FTimerHandle hitTimer;
 	FTimerHandle actTimer;
+	FTimerHandle dieTimer;
 
 	void PlayAttackAnimation();
 	void PlayDashAttackAnimation();

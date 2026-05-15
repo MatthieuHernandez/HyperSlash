@@ -1,10 +1,10 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "HyperSlashGameMode.generated.h"
+
+class UGameOverUserWidget;
 
 /**
  *  Simple Game Mode for a top-down perspective game
@@ -21,6 +21,10 @@ protected:
 	/** Max number of enemies to allow in the level at once */
 	UPROPERTY(EditAnywhere, Category = "Gameplay", meta = (ClampMin = 0, ClampMax = 1000))
 	int32 MaxEnemiesAtOnce = 300;
+
+
+	UPROPERTY(EditAnywhere, Category = "Classes")
+	TSubclassOf<UGameOverUserWidget> GameOverWidgetClass;
 
 	/** Current number of enemies in the level */
 	int32 EnemyCount = 0;
@@ -40,6 +44,9 @@ public:
 
 	/** Decreases the NPC count */
 	void DecreaseEnemyCount();
+
+	UFUNCTION()
+	void GameOver();
 };
 
 

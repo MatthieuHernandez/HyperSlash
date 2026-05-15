@@ -6,7 +6,7 @@
 
 class UButton;
 
-UCLASS()
+UCLASS(abstract)
 class HYPERSLASH_API UMenuUserWidget : public UUserWidget
 {
 	GENERATED_BODY()

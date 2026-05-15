@@ -10,7 +10,7 @@ class UStaticMeshComponent;
 class USphereComponent;
 
 UCLASS(abstract)
-class AHyperSlashAttack : public AActor
+class HYPERSLASH_API AHyperSlashAttack : public AActor
 {
 	GENERATED_BODY()
 
