@@ -39,5 +39,10 @@
 			"Name": "AIAssistant",
 			"Enabled": true
 		}
+	],
+	"TargetPlatforms": [
+		"Linux",
+		"Mac",
+		"Windows"
 	]
 }
