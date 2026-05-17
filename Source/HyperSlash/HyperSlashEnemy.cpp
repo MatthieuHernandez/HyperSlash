@@ -54,8 +54,17 @@ void AHyperSlashEnemy::BeginPlay()
 
 void AHyperSlashEnemy::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
-	Super::EndPlay(EndPlayReason);
+	GetCharacterMovement()->bUseRVOAvoidance = false;
 	GetWorld()->GetTimerManager().ClearTimer(DestructionTimer);
+	if (auto* AI = Cast<AAIController>(GetController()))
+	{
+		if (auto* Brain = AI->GetBrainComponent())
+		{
+			Brain->StopLogic(TEXT("Enemy destroyed"));
+		}
+		AI->StopMovement();
+	}
+	Super::EndPlay(EndPlayReason);
 }
 
 void AHyperSlashEnemy::Destroyed()

@@ -12,6 +12,7 @@ ATwinStickAIController::ATwinStickAIController()
 
 	// ensure we start the StateTree when we possess the pawn
 	bStartAILogicOnPossess = true;
+	bStopAILogicOnUnposses = true;
 
 	// ensure we're attached to the possessed character.
 	// this is necessary for EnvQueries to work correctly

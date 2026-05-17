@@ -164,11 +164,9 @@ void AHyperSlashCharacter::BeHit(Direction D)
 
 void AHyperSlashCharacter::Die() 
 {
-	UE_LOG(LogTemp, Warning, TEXT("A"));
 	if (auto* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
 	{
 		GetWorldTimerManager().SetTimer(dieTimer, GM, &AHyperSlashGameMode::GameOver, 1.2f, false);
-		UE_LOG(LogTemp, Warning, TEXT("B"));
 	}
 }
 
