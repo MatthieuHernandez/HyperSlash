@@ -2,12 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "MenuUserWidget.generated.h"
+#include "MainMenuUserWidget.generated.h"
 
 class UButton;
 
 UCLASS(abstract)
-class HYPERSLASH_API UMenuUserWidget : public UUserWidget
+class HYPERSLASH_API UMainMenuUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 protected:
