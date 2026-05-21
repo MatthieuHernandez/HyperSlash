@@ -14,17 +14,10 @@ next_step() {
   echo "============================================================="
   STEP=$((STEP + 1))
 }
-
-next_step "Release $VERSION"
-mkdir -p "$PROJECT_ROOT/Builds"
+next_step "Build $VERSION"
 
 next_step "Clear the folder"
 rm -rf "$PROJECT_ROOT/Binaries/Package"
-
-next_step "Merge main into release"
-git checkout release
-git merge main --squash
-git push origin release
 
 next_step "Build the game for Windows"
 "$UE_ROOT/Engine/Build/BatchFiles/RunUAT.sh" BuildCookRun \

@@ -14,20 +14,25 @@ next_step() {
   echo "============================================================="
   STEP=$((STEP + 1))
 }
-# next_step "Release $VERSION"
-# next_step "Package Windows version into zip file"
-# 7z a -tzip -r \
-#   "$PROJECT_ROOT/Binaries/Package/HyperSlash-$VERSION-win-x64.zip" \
-#   "$PROJECT_ROOT/Binaries/Package/Windows/"*
+next_step "Release $VERSION"
 
-# next_step "Package Linux version into tar.gz file"
-# cd "$PROJECT_ROOT/Binaries/Package/Linux"
-# tar -czf "$PROJECT_ROOT/Binaries/Package/HyperSlash-$VERSION-linux-x64.tar.gz" \
-#   -C "$PROJECT_ROOT/Binaries/Package/Linux" .
+next_step "Package Windows version into zip file"
+7z a -tzip -r \
+  "$PROJECT_ROOT/Binaries/Package/HyperSlash-$VERSION-win-x64.zip" \
+  "$PROJECT_ROOT/Binaries/Package/Windows/"*
 
-# next_step "Create the tag"
-# git tag "$VERSION"
-# git push origin "$VERSION"
+next_step "Package Linux version into tar.gz file"
+tar -czf "$PROJECT_ROOT/Binaries/Package/HyperSlash-$VERSION-linux-x64.tar.gz" \
+  -C "$PROJECT_ROOT/Binaries/Package/Linux" .
+
+next_step "Merge main into release"
+git checkout -B release origin/release
+git merge  --no-ff --no-edit origin/main
+git push origin release
+
+next_step "Create the tag"
+git tag "$VERSION"
+git push origin "$VERSION"
 
 next_step "Create the GitHub release"
 gh release create "$VERSION" \
