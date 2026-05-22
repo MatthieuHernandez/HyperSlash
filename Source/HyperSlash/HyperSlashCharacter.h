@@ -18,72 +18,83 @@ class USpringArmComponent;
 UCLASS(abstract)
 class AHyperSlashCharacter : public ACharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 private:
-	bool canBeHit = true;
-	bool canAct = true;
+    bool canBeHit = true;
+    bool canAct = true;
 
-	FTimerHandle hitTimer;
-	FTimerHandle actTimer;
-	FTimerHandle dieTimer;
+    int32 numberOfEnemyKilledByPreviousAttack = 0;
 
-	void PlayAttackAnimation();
-	void PlayDashAttackAnimation();
-	void SpawnAttack();
-	void SpawnDashAttack();
+    /** The score multiplier increases with each successful attack. */
+    int32 scoreMultiplier;
+    /** The score is only going up.*/
+    int32 score;
+
+    FTimerHandle hitTimer;
+    FTimerHandle actTimer;
+    FTimerHandle dieTimer;
+
+    void PlayAttackAnimation();
+    void PlayDashAttackAnimation();
+    void SpawnAttack();
+    void SpawnDashAttack();
 
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int32 Health = 5;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+    int32 Health = 5;
 
-	UPROPERTY(EditAnywhere, Category = "Action")
-	TSubclassOf<AHyperSlashAttack> AttackClass;
+    UPROPERTY(EditAnywhere, Category = "Action")
+    TSubclassOf<AHyperSlashAttack> AttackClass;
 
-	UPROPERTY(EditAnywhere, Category = "Action")
-	TSubclassOf<AHyperSlashDashAttack> DashAttackClass;
+    UPROPERTY(EditAnywhere, Category = "Action")
+    TSubclassOf<AHyperSlashDashAttack> DashAttackClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimSequence* AttackAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimSequence* AttackAnimation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimSequence* DashAttackAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimSequence* DashAttackAnimation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimSequence* HitFrontAnnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimSequence* HitFrontAnnimation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimSequence* HitBackAnnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimSequence* HitBackAnnimation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimSequence* HitLeftAnnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimSequence* HitLeftAnnimation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	UAnimSequence* HitRightAnnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimSequence* HitRightAnnimation;
 
 public:
 
-	/** Constructor */
-	AHyperSlashCharacter();
+    /** Constructor */
+    AHyperSlashCharacter();
 
-	/** Initialization */
-	virtual void BeginPlay() override;
+    /** Initialization */
+    virtual void BeginPlay() override;
 
-	/** Update */
-	virtual void Tick(float DeltaSeconds) override;
+    /** Update */
+    virtual void Tick(float DeltaSeconds) override;
 
-	UFUNCTION()
-	void PerformAttack();
+    UFUNCTION()
+    void PerformAttack();
 
-	UFUNCTION()
-	void PerformDashAttack();
+    UFUNCTION()
+    void PerformDashAttack();
 
-	void BeHit(Direction D);
+    void BeHit(Direction D);
 
-	UFUNCTION()
-	void Die();
+    void Attack();
 
-	bool CanAct() const;
+    void EnemyKilled();
+
+    UFUNCTION()
+    void Die();
+
+    bool CanAct() const;
 };
 
