@@ -12,6 +12,8 @@
 class UCameraComponent;
 class USpringArmComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScoreChanged, int32, score, int32, scoreMultiplier);
+
 /**
  *  A controllable top-down perspective character
  */
@@ -79,6 +81,9 @@ public:
 
     /** Update */
     virtual void Tick(float DeltaSeconds) override;
+
+    UPROPERTY(BlueprintAssignable, Category = "Score")
+    FOnScoreChanged OnScoreChanged;
 
     UFUNCTION()
     void PerformAttack();

@@ -179,9 +179,7 @@ void AHyperSlashCharacter::Attack()
 void AHyperSlashCharacter::EnemyKilled() {
     numberOfEnemyKilledByPreviousAttack++;
     score += numberOfEnemyKilledByPreviousAttack * scoreMultiplier;
-    UE_LOG(LogTemp, Warning, TEXT("--------------------------------------"));
-    UE_LOG(LogTemp, Warning, TEXT("Score: %u"), score);
-    UE_LOG(LogTemp, Warning, TEXT("Multiplier: %u"), scoreMultiplier);
+    OnScoreChanged.Broadcast(score, scoreMultiplier);
 }
 
 
