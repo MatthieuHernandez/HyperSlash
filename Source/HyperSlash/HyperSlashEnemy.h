@@ -7,62 +7,66 @@
 
 class ATwinStickNPCDestruction;
 class AHyperSlashCharacter;
+class USoundBase;
 
 UCLASS(abstract)
 class AHyperSlashEnemy : public ACharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 protected:
-	/** Type of destruction proxy to spawn on death */
-	UPROPERTY(EditAnywhere, Category = "Destruction")
-	TSubclassOf<ATwinStickNPCDestruction> DestructionProxyClass;
+    /** Type of destruction proxy to spawn on death */
+    UPROPERTY(EditAnywhere, Category = "Destruction")
+    TSubclassOf<ATwinStickNPCDestruction> DestructionProxyClass;
 
-	/** Time to wait after this NPC is hit before destroying it */
-	UPROPERTY(EditAnywhere, Category = "Destruction", meta = (ClampMin = 0, ClampMax = 5, Units = "s"))
-	float DeferredDestructionTime = 0.1f;
+    /** Time to wait after this NPC is hit before destroying it */
+    UPROPERTY(EditAnywhere, Category = "Destruction", meta = (ClampMin = 0, ClampMax = 5, Units = "s"))
+    float DeferredDestructionTime = 0.1f;
 
-	/** Deferred destruction timer */
-	FTimerHandle DestructionTimer;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Destruction")
+    TObjectPtr<USoundBase> DeathSound;
 
-	/** Gameplay Initialization */
-	virtual void BeginPlay() override;
+    /** Deferred destruction timer */
+    FTimerHandle DestructionTimer;
 
-	/** Gameplay cleanup */
-	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
+    /** Gameplay Initialization */
+    virtual void BeginPlay() override;
 
-	/** Handle destruction */
-	virtual void Destroyed() override;
+    /** Gameplay cleanup */
+    virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
-	/** Collision handling */
-	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
+    /** Handle destruction */
+    virtual void Destroyed() override;
 
-	void StopStateTreeLogic();
+    /** Collision handling */
+    virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
-	/** Called from timer to complete the destruction process for this NPC */
-	void DeferredDestroy();
+    void StopStateTreeLogic();
 
-	Direction GetHitDirection(AHyperSlashCharacter* Player);
+    /** Called from timer to complete the destruction process for this NPC */
+    void DeferredDestroy();
 
-	/** Called When hit an actor*/
-	UFUNCTION()
-	void OnHit(
-		UPrimitiveComponent* HitComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		FVector NormalImpulse,
-		const FHitResult& Hit);
+    Direction GetHitDirection(AHyperSlashCharacter* Player);
+
+    /** Called When hit an actor*/
+    UFUNCTION()
+    void OnHit(
+        UPrimitiveComponent* HitComponent,
+        AActor* OtherActor,
+        UPrimitiveComponent* OtherComp,
+        FVector NormalImpulse,
+        const FHitResult& Hit);
 
 
-public:	
+public:
 
-	/** If true, this NPC has already been hit by a projectile and is being destroyed. Exposed to BP so it can be read by StateTree */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC")
-	bool bHit = false;
+    /** If true, this NPC has already been hit by a projectile and is being destroyed. Exposed to BP so it can be read by StateTree */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC")
+    bool bHit = false;
 
-	// Sets default values for this character's properties
-	AHyperSlashEnemy();
+    // Sets default values for this character's properties
+    AHyperSlashEnemy();
 
-	/** Tells the NPC to process a projectile impact */
-	void ProjectileImpact(const FVector& ForwardVector);
+    /** Tells the NPC to process a projectile impact */
+    void ProjectileImpact(const FVector& ForwardVector);
 };

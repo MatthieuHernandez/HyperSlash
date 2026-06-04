@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AIController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 // Sets default values
 AHyperSlashEnemy::AHyperSlashEnemy()
@@ -98,7 +99,10 @@ void AHyperSlashEnemy::ProjectileImpact(const FVector& ForwardVector)
     // raise the hit flag
     bHit = true;
 
-
+    if (DeathSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+    }
     // deactivate character movement
     GetCharacterMovement()->Deactivate();
 
