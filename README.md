@@ -40,5 +40,11 @@ Please keep the code clean, simple and documented.
 ## License
 
 HyperSlash is licensed under the MIT License.
-
 See the [LICENSE](LICENSE) file for more information.
+
+### Third-Party Assets
+
+This project includes animation assets from the Universal Animation Library by Quaternius.<br/>
+Source: [quaternius.com/packs/universalanimationlibrary](https://quaternius.com/packs/universalanimationlibrary.html)
+
+These assets are released under the [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/) license.
