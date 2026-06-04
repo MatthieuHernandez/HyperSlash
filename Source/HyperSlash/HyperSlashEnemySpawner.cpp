@@ -7,7 +7,6 @@
 #include "NavMesh/RecastNavMesh.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
-#include "TwinStickNPC.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 
