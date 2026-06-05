@@ -5,9 +5,10 @@
 #include "Direction.h"
 #include "HyperSlashEnemy.generated.h"
 
-class ATwinStickNPCDestruction;
+class AActor;
 class AHyperSlashCharacter;
 class USoundBase;
+class UNiagaraSystem;
 
 UCLASS(abstract)
 class AHyperSlashEnemy : public ACharacter
@@ -15,16 +16,15 @@ class AHyperSlashEnemy : public ACharacter
     GENERATED_BODY()
 
 protected:
-    /** Type of destruction proxy to spawn on death */
-    UPROPERTY(EditAnywhere, Category = "Destruction")
-    TSubclassOf<ATwinStickNPCDestruction> DestructionProxyClass;
-
     /** Time to wait after this NPC is hit before destroying it */
-    UPROPERTY(EditAnywhere, Category = "Destruction", meta = (ClampMin = 0, ClampMax = 5, Units = "s"))
+    UPROPERTY(EditAnywhere, Category = "Death", meta = (ClampMin = 0, ClampMax = 5, Units = "s"))
     float DeferredDestructionTime = 0.1f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Destruction")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Death")
     TObjectPtr<USoundBase> DeathSound;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Death")
+    TObjectPtr<UNiagaraSystem> BloodSpurt;
 
     /** Deferred destruction timer */
     FTimerHandle DestructionTimer;

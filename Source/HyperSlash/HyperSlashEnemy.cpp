@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "HyperSlashEnemy.h"
 #include "HyperSlashGameMode.h"
 #include "HyperSlashCharacter.h"
@@ -8,12 +5,13 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StateTreeAIComponent.h"
 #include "Engine/World.h"
-#include "TwinStickNPCDestruction.h"
 #include "TimerManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AIController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 AHyperSlashEnemy::AHyperSlashEnemy()
@@ -99,15 +97,19 @@ void AHyperSlashEnemy::ProjectileImpact(const FVector& ForwardVector)
     // raise the hit flag
     bHit = true;
 
+    // deactivate character movement
+    GetCharacterMovement()->Deactivate();
+
     if (DeathSound)
     {
         UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
     }
-    // deactivate character movement
-    GetCharacterMovement()->Deactivate();
-
-    // spawn the NPC destruction proxy
-    ATwinStickNPCDestruction* DestructionProxy = GetWorld()->SpawnActor<ATwinStickNPCDestruction>(DestructionProxyClass, GetActorTransform());
+    if (BloodSpurt)
+    {
+        auto EffectRotation = GetActorRotation();
+        EffectRotation.Yaw += 180.0f;
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSpurt, GetActorLocation(), EffectRotation);
+    }
 
     // hide this actor
     SetActorHiddenInGame(true);
