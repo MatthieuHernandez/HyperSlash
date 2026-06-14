@@ -21,7 +21,7 @@ void UMainMenuUserWidget::NativeConstruct()
 void UMainMenuUserWidget::OnPlayClicked()
 {
     RemoveFromParent();
-    UGameplayStatics::OpenLevel(this, FName("Lvl_TopDown"));
+    UGameplayStatics::OpenLevel(this, FName("Lvl_Desert"));
 }
 
 void UMainMenuUserWidget::OnSettingsClicked()
