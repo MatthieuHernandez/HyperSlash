@@ -5,6 +5,7 @@
 #include "HyperSlashGameMode.generated.h"
 
 class UGameOverUserWidget;
+class UInGameUserWidget;
 
 /**
  *  Simple Game Mode for a top-down perspective game
@@ -25,6 +26,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Classes")
 	TSubclassOf<UGameOverUserWidget> GameOverWidgetClass;
+
+	UPROPERTY(EditAnywhere, Category = "Classes")
+	TSubclassOf<UInGameUserWidget> InGameUserWidgetClass;
 
 	/** Current number of enemies in the level */
 	int32 EnemyCount = 0;
