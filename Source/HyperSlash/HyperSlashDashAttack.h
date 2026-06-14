@@ -36,7 +36,7 @@ protected:
 
 	/** Time to wait before stopping AoE damage checks */
 	UPROPERTY(EditAnywhere, Category = "Attack", meta = (ClampMin = 0, ClampMax = 5, Units = "s"))
-	float StopAoETime = 0.5f;
+	float StopAoETime = 44.0f / 30.0f;
 
 	/** While true, the AoE will damage anything that overlaps it */
 	bool bIsAoEActive = false;

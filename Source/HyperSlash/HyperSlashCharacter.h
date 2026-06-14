@@ -23,6 +23,7 @@ class AHyperSlashCharacter : public ACharacter
 private:
     bool canBeHit = true;
     bool canAct = true;
+    bool isDashing = false;
 
     int32 numberOfEnemyKilledByPreviousAttack = 0;
 
@@ -34,11 +35,16 @@ private:
     FTimerHandle hitTimer;
     FTimerHandle actTimer;
     FTimerHandle dieTimer;
+    FTimerHandle dashTimer;
+
+    FVector dashAttackVector;
 
     void PlayAttackAnimation();
     void PlayDashAttackAnimation();
     void SpawnAttack();
     void SpawnDashAttack();
+
+    AActor* equippedWeapon;
 
 protected:
 
@@ -50,6 +56,9 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Action")
     TSubclassOf<AHyperSlashDashAttack> DashAttackClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    TSubclassOf<AActor> WeaponClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* AttackAnimation;
@@ -100,4 +109,3 @@ public:
 
     bool CanAct() const;
 };
-

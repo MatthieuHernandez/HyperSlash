@@ -52,6 +52,15 @@ void AHyperSlashPlayerController::Tick(float DeltaSeconds)
     {
         return;
     }
+
+    if (UAnimInstance* Anim = player->GetMesh()->GetAnimInstance())
+    {
+        if (Anim->IsAnyMontagePlaying())
+        {
+            return;
+        }
+    }
+
     FVector Delta = CachedDestination - player->GetActorLocation();
     if (Delta.Size() > 100.0f)
     {

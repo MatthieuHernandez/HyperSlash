@@ -50,6 +50,7 @@ The following directories and their contents are excluded from the MIT License a
 | [UAL1_Standard](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/Animations/UAL1_Standard/) | Universal Animation Library | Quaternius | [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) | [CC0 1.0 Universal] |
 | coming soon| Universal Animation Library 2 | Quaternius | [Universal Animation Library 2](https://quaternius.com/packs/universalanimationlibrary2.html) | [CC0 1.0 Universal] |
 | [CyberpunkRobot](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/CyberpunkRobot/) | Cyberpunk Robot | Doink | [Sketchfab](https://sketchfab.com/3d-models/cyberpunk-robot-7f49cfa1aeb043aba44bb96b72cd9160) | [Creative Commons Attribution 4.0] |
+| [Halberd](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/Halberd/) | Halberd | BryceBarry | [Sketchfab](https://sketchfab.com/3d-models/halberd-bfca19ab58da4372884571ab1a91d967) | [Creative Commons Attribution 4.0] |
 
 **NOTE:** Some third-party assets may have been modified, converted, retargeted, optimized, or otherwise adapted to integrate with this project. Such modifications do not alter the original license of the third-party assets, which remain subject to their respective licenses.
 

@@ -29,10 +29,6 @@ void AHyperSlashEnemySpawner::BeginPlay()
     {
         NavData = Cast<ARecastNavMesh>(ActorList[0]);
     }
-    else
-    {
-        UE_LOG(LogTemp, Log, TEXT("Could not find recast navmesh"));
-    }
 
     // set up the spawn timer
     GetWorld()->GetTimerManager().SetTimer(SpawnEnemyGroupTimer, this, &AHyperSlashEnemySpawner::SpawnEnemyGroup, SpawnGroupDelay, true);

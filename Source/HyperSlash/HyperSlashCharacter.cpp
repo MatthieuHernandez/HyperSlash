@@ -27,7 +27,7 @@ AHyperSlashCharacter::AHyperSlashCharacter()
     GetCharacterMovement()->bAllowPhysicsRotationDuringAnimRootMotion = false;
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
-    GetCharacterMovement()->bConstrainToPlane = true;
+    GetCharacterMovement()->bConstrainToPlane = false;
     GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
     // Activate ticking in order to update the cursor every frame.
@@ -58,11 +58,23 @@ void AHyperSlashCharacter::BeginPlay()
             PC->SetViewTargetWithBlend(TargetCamera, 0.5f);
         }
     }
+    if (WeaponClass)
+    {
+        equippedWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator);
+        if (equippedWeapon)
+        {
+            equippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("hand_socket_r"));
+        }
+    }
 }
 
 void AHyperSlashCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if (isDashing)
+    {
+        AddActorWorldOffset(dashAttackVector * DeltaSeconds, true);
+    }
 }
 
 void AHyperSlashCharacter::PlayAttackAnimation()
@@ -107,6 +119,16 @@ void AHyperSlashCharacter::SpawnDashAttack()
         GetActorLocation(),
         GetActorRotation(),
         Params);
+
+    float dashDuration = DashAttackAnimation->GetPlayLength();
+
+    dashAttackVector = GetActorForwardVector();
+    dashAttackVector.Z = 0.f;
+    dashAttackVector.Normalize();
+    dashAttackVector *= 500.0f * dashDuration;
+
+    isDashing = true;
+    GetWorldTimerManager().SetTimer(dashTimer, [this]() {isDashing = false; }, dashDuration, false);
 }
 
 void AHyperSlashCharacter::PerformAttack()
@@ -180,7 +202,6 @@ void AHyperSlashCharacter::EnemyKilled() {
     OnScoreChanged.Broadcast(score, scoreMultiplier);
 }
 
-
 void AHyperSlashCharacter::Die() 
 {
     if (auto* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
@@ -191,5 +212,5 @@ void AHyperSlashCharacter::Die()
 
 bool AHyperSlashCharacter::CanAct() const
 {
-    return canAct;
+    return canAct && !isDashing;
 }
