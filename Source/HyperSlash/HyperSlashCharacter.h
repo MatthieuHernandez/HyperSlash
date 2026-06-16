@@ -1,7 +1,4 @@
 #pragma once
-
-#include "HyperSlashAttack.h"
-#include "HyperSlashDashAttack.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Direction.h"
@@ -12,9 +9,6 @@ class USpringArmComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScoreChanged, int32, score, int32, scoreMultiplier);
 
-/**
- *  A controllable top-down perspective character
- */
 UCLASS(abstract)
 class AHyperSlashCharacter : public ACharacter
 {
@@ -41,8 +35,6 @@ private:
 
     void PlayAttackAnimation();
     void PlayDashAttackAnimation();
-    void SpawnAttack();
-    void SpawnDashAttack();
 
     AActor* equippedWeapon;
 
@@ -50,12 +42,6 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
     int32 Health = 5;
-
-    UPROPERTY(EditAnywhere, Category = "Action")
-    TSubclassOf<AHyperSlashAttack> AttackClass;
-
-    UPROPERTY(EditAnywhere, Category = "Action")
-    TSubclassOf<AHyperSlashDashAttack> DashAttackClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     TSubclassOf<AActor> WeaponClass;

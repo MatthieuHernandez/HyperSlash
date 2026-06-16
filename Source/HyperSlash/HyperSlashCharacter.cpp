@@ -95,30 +95,18 @@ void AHyperSlashCharacter::PlayDashAttackAnimation()
     }
 }
 
-void AHyperSlashCharacter::SpawnAttack()
+void AHyperSlashCharacter::PerformAttack()
 {
-    FActorSpawnParameters Params;
-    Params.Owner = this;
-    Params.Instigator = this;
-
-    GetWorld()->SpawnActor<AHyperSlashAttack>(
-        AttackClass,
-        GetActorLocation(),
-        GetActorRotation(),
-        Params);
+    if (!CanAct()) return;
+    PlayAttackAnimation();
+    Attack();
 }
 
-void AHyperSlashCharacter::SpawnDashAttack()
+void AHyperSlashCharacter::PerformDashAttack()
 {
-    FActorSpawnParameters Params;
-    Params.Owner = this;
-    Params.Instigator = this;
-
-    GetWorld()->SpawnActor<AHyperSlashDashAttack>(
-        DashAttackClass,
-        GetActorLocation(),
-        GetActorRotation(),
-        Params);
+    if (!CanAct()) return;
+    PlayDashAttackAnimation();
+    Attack();
 
     float dashDuration = DashAttackAnimation->GetPlayLength();
 
@@ -129,22 +117,6 @@ void AHyperSlashCharacter::SpawnDashAttack()
 
     isDashing = true;
     GetWorldTimerManager().SetTimer(dashTimer, [this]() {isDashing = false; }, dashDuration, false);
-}
-
-void AHyperSlashCharacter::PerformAttack()
-{
-    if (!CanAct()) return;
-    PlayAttackAnimation();
-    SpawnAttack();
-    Attack();
-}
-
-void AHyperSlashCharacter::PerformDashAttack()
-{
-    if (!CanAct()) return;
-    PlayDashAttackAnimation();
-    SpawnDashAttack();
-    Attack();
 }
 
 void AHyperSlashCharacter::BeHit(Direction D)
