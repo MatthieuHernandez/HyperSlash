@@ -40,3 +40,6 @@ gh release create "$VERSION" \
   --target release \
   --title "$VERSION" \
   --generate-notes
+
+next_step "Go back on main"
+git checkout main
