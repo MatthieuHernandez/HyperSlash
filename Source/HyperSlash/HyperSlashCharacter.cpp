@@ -91,7 +91,7 @@ void AHyperSlashCharacter::PlayDashAttackAnimation()
     if (!AttackAnimation) return;
     if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
     {
-        AnimInstance->PlaySlotAnimationAsDynamicMontage(DashAttackAnimation, FName("DefaultSlot"));
+        AnimInstance->PlaySlotAnimationAsDynamicMontage(DashAttackAnimation, FName("DefaultSlot"), 0.15f, 0.15f, DashSpeed);
     }
 }
 
@@ -108,12 +108,12 @@ void AHyperSlashCharacter::PerformDashAttack()
     PlayDashAttackAnimation();
     Attack();
 
-    float dashDuration = DashAttackAnimation->GetPlayLength();
+    float dashDuration = DashAttackAnimation->GetPlayLength() / DashSpeed;
 
     dashAttackVector = GetActorForwardVector();
     dashAttackVector.Z = 0.f;
     dashAttackVector.Normalize();
-    dashAttackVector *= 500.0f * dashDuration;
+    dashAttackVector *= DashDistance * dashDuration * DashSpeed;
 
     isDashing = true;
     GetWorldTimerManager().SetTimer(dashTimer, [this]() {isDashing = false; }, dashDuration, false);

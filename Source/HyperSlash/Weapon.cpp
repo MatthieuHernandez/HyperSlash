@@ -24,7 +24,6 @@ void AWeapon::Tick(float DeltaTime)
 
 void AWeapon::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    UE_LOG(LogTemp, Warning, TEXT("AWeapon::OnHit called"));
     if (AHyperSlashEnemy* Enemy = Cast<AHyperSlashEnemy>(OtherActor))
     {
         Enemy->ProjectileImpact(FVector::ZeroVector);

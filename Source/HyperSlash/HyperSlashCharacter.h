@@ -39,9 +39,14 @@ private:
     AActor* equippedWeapon;
 
 protected:
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
     int32 Health = 5;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+    float DashSpeed = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+    float DashDistance = 600.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     TSubclassOf<AActor> WeaponClass;
