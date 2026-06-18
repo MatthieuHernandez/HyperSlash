@@ -11,6 +11,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "Camera/CameraActor.h"
+#include "Weapon.h"
 
 AHyperSlashCharacter::AHyperSlashCharacter()
 {
@@ -60,7 +61,7 @@ void AHyperSlashCharacter::BeginPlay()
     }
     if (WeaponClass)
     {
-        equippedWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator);
+        equippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator);
         if (equippedWeapon)
         {
             equippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("hand_socket_r"));
@@ -97,14 +98,23 @@ void AHyperSlashCharacter::PlayDashAttackAnimation()
 
 void AHyperSlashCharacter::PerformAttack()
 {
-    if (!CanAct()) return;
     PlayAttackAnimation();
     Attack();
+
+    float attackDuration = AttackAnimation->GetPlayLength();
+
+    isAttacking = true;
+    equippedWeapon->EnableHitbox();
+    static auto func = [this]() {
+        equippedWeapon->DisableHitbox();
+        isAttacking = false;
+        };
+    GetWorldTimerManager().SetTimer(dashTimer, func, attackDuration, false);
+
 }
 
 void AHyperSlashCharacter::PerformDashAttack()
 {
-    if (!CanAct()) return;
     PlayDashAttackAnimation();
     Attack();
 
@@ -116,7 +126,12 @@ void AHyperSlashCharacter::PerformDashAttack()
     dashAttackVector *= DashDistance * dashDuration * DashSpeed;
 
     isDashing = true;
-    GetWorldTimerManager().SetTimer(dashTimer, [this]() {isDashing = false; }, dashDuration, false);
+    equippedWeapon->EnableHitbox();
+    static auto func = [this]() {
+        equippedWeapon->DisableHitbox();
+        isDashing = false;
+        };
+    GetWorldTimerManager().SetTimer(dashTimer, func, dashDuration, false);
 }
 
 void AHyperSlashCharacter::BeHit(Direction D)
@@ -184,5 +199,5 @@ void AHyperSlashCharacter::Die()
 
 bool AHyperSlashCharacter::CanAct() const
 {
-    return canAct && !isDashing;
+    return canAct && !isDashing && !isAttacking;
 }

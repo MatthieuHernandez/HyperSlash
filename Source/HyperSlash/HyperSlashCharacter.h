@@ -6,6 +6,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class AWeapon;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScoreChanged, int32, score, int32, scoreMultiplier);
 
@@ -18,6 +19,9 @@ private:
     bool canBeHit = true;
     bool canAct = true;
     bool isDashing = false;
+    bool isAttacking = false;
+
+
 
     int32 numberOfEnemyKilledByPreviousAttack = 0;
 
@@ -36,7 +40,7 @@ private:
     void PlayAttackAnimation();
     void PlayDashAttackAnimation();
 
-    AActor* equippedWeapon;
+    AWeapon* equippedWeapon;
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
@@ -49,7 +53,7 @@ protected:
     float DashDistance = 600.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-    TSubclassOf<AActor> WeaponClass;
+    TSubclassOf<AWeapon> WeaponClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* AttackAnimation;
