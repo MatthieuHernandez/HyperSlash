@@ -21,6 +21,11 @@ private:
     bool isDashing = false;
     bool isAttacking = false;
 
+    UFUNCTION()
+    void EndAttack();
+
+    UFUNCTION()
+    void EndDashAttack();
 
 
     int32 numberOfEnemyKilledByPreviousAttack = 0;

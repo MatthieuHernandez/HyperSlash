@@ -105,12 +105,13 @@ void AHyperSlashCharacter::PerformAttack()
 
     isAttacking = true;
     equippedWeapon->EnableHitbox();
-    static auto func = [this]() {
-        equippedWeapon->DisableHitbox();
-        isAttacking = false;
-        };
-    GetWorldTimerManager().SetTimer(dashTimer, func, attackDuration, false);
+    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndAttack, attackDuration, false);
+}
 
+void AHyperSlashCharacter::EndAttack()
+{
+    equippedWeapon->DisableHitbox();
+    isAttacking = false;
 }
 
 void AHyperSlashCharacter::PerformDashAttack()
@@ -127,11 +128,13 @@ void AHyperSlashCharacter::PerformDashAttack()
 
     isDashing = true;
     equippedWeapon->EnableHitbox();
-    static auto func = [this]() {
-        equippedWeapon->DisableHitbox();
-        isDashing = false;
-        };
-    GetWorldTimerManager().SetTimer(dashTimer, func, dashDuration, false);
+    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndDashAttack, dashDuration, false);
+}
+
+void AHyperSlashCharacter::EndDashAttack()
+{
+    equippedWeapon->DisableHitbox();
+    isDashing = false;
 }
 
 void AHyperSlashCharacter::BeHit(Direction D)
