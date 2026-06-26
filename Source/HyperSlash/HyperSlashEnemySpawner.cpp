@@ -62,6 +62,7 @@ void AHyperSlashEnemySpawner::SpawnEnemyGroup()
 FVector AHyperSlashEnemySpawner::GetRandomSpawnLocation()
 {
     FVector SpawnLocation = FVector::ZeroVector;
+    SpawnLocation.Z = 1;
 
     const int32 Side = FMath::RandRange(0, 3);
     const auto Top = 3040.0;

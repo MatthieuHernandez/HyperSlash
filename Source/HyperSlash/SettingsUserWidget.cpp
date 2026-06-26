@@ -1,8 +1,13 @@
 #include "SettingsUserWidget.h"
 #include "MainMenuUserWidget.h"
+#include "MusicEngine.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/Slider.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Sound/SoundClass.h"
+#include "Sound/SoundBase.h"
+#include "Kismet/GameplayStatics.h"
 
 void USettingsUserWidget::NativeConstruct()
 {
@@ -31,6 +36,12 @@ void USettingsUserWidget::NativeConstruct()
         ScreenModeText->SetText(FText::FromString(ScreenModeOptions[ScreenModeIndex]));
         ResolutionText->SetText(FText::FromString(ResolutionOptions[ResolutionIndex]));
         VsyncText->SetText(FText::FromString(VsyncOptions[VsyncIndex]));
+    }
+    if (MusicVolumeSlider && SoundEffectsVolumeSlider) {
+        MusicVolumeSlider->OnValueChanged.AddDynamic(this, &USettingsUserWidget::OnMusicVolumeSliderChanged);
+        MusicVolumeSlider->OnMouseCaptureEnd.AddDynamic(this, &USettingsUserWidget::OnMusicVolumeSliderReleased);
+        SoundEffectsVolumeSlider->OnValueChanged.AddDynamic(this, &USettingsUserWidget::OnSoundEffectsVolumeSliderChanged);
+        SoundEffectsVolumeSlider->OnMouseCaptureEnd.AddDynamic(this, &USettingsUserWidget::OnSoundEffectsVolumeSliderReleased);
     }
 }
 
@@ -162,6 +173,36 @@ void USettingsUserWidget::OnRightVsyncClicked()
     if (VsyncText)
     {
         VsyncText->SetText(FText::FromString(VsyncOptions[VsyncIndex]));
+    }
+}
+
+void USettingsUserWidget::OnMusicVolumeSliderChanged(float value)
+{
+    auto text = FText::AsNumber(FMath::RoundToInt(value));
+    MusicVolumeText->SetText(text);
+    UMusicEngine* musicEngine = GetGameInstance()->GetSubsystem<UMusicEngine>();
+    musicEngine->SetMasterVolume(value / 10.0f);
+}
+
+void USettingsUserWidget::OnMusicVolumeSliderReleased()
+{
+}
+
+void USettingsUserWidget::OnSoundEffectsVolumeSliderChanged(float value)
+{
+    auto text = FText::AsNumber(FMath::RoundToInt(value));
+    SoundEffectsVolumeText->SetText(text);
+    if (MasterSoundClass)
+    {
+        MasterSoundClass->Properties.Volume = value / 10.0f;
+    }
+}
+
+void USettingsUserWidget::OnSoundEffectsVolumeSliderReleased()
+{
+    if (TestSound)
+    {
+        UGameplayStatics::PlaySound2D(this, TestSound);
     }
 }
 

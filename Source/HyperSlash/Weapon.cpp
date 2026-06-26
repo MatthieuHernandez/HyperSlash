@@ -10,10 +10,11 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
     Super::BeginPlay();
-    Hitbox = Cast<UBoxComponent>(GetDefaultSubobjectByName(TEXT("Hitbox")));
-    if (Hitbox)
+    hitbox = Cast<UBoxComponent>(GetDefaultSubobjectByName(TEXT("Hitbox")));
+    if (hitbox)
     {
-        Hitbox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnHit);
+        hitbox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnHit);
+        DisableHitbox();
     }
 }
 
@@ -27,5 +28,23 @@ void AWeapon::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor
     if (AHyperSlashEnemy* Enemy = Cast<AHyperSlashEnemy>(OtherActor))
     {
         Enemy->ProjectileImpact(FVector::ZeroVector);
+    }
+}
+
+void AWeapon::EnableHitbox()
+{
+    if (hitbox)
+    {
+        hitbox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+        hitbox->SetGenerateOverlapEvents(true);
+    }
+}
+
+void AWeapon::DisableHitbox()
+{
+    if (hitbox)
+    {
+        hitbox->SetGenerateOverlapEvents(false);
+        hitbox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
 }

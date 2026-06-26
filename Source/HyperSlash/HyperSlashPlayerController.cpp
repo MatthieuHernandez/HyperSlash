@@ -101,8 +101,7 @@ void AHyperSlashPlayerController::OrientPlayer(AHyperSlashCharacter* Charactere)
 void AHyperSlashPlayerController::OnAttack()
 {
     AHyperSlashCharacter* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
-    if (Charactere)
-    {
+    if (Charactere && Charactere->CanAct()) {
         OrientPlayer(Charactere);
         Charactere->PerformAttack();
     }
@@ -111,8 +110,7 @@ void AHyperSlashPlayerController::OnAttack()
 void AHyperSlashPlayerController::OnDashAttack()
 {
     AHyperSlashCharacter* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
-    if (Charactere)
-    {
+    if (Charactere && Charactere->CanAct()) {
         OrientPlayer(Charactere);
         Charactere->PerformDashAttack();
     }

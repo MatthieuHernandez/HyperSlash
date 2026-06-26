@@ -45,15 +45,16 @@ Any files not listed below as third-party assets are licensed under the [MIT Lic
 
 The following directories and their contents are excluded from the MIT License and are instead licensed under their respective third-party licenses:
 
-| Directory | Asset | Author | Source | License |
-| --------- | ----- | ------ | ------ | ------- |
-| [UAL1_Standard](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/Animations/UAL1_Standard/) | Universal Animation Library | Quaternius | [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) | [CC0 1.0 Universal] |
-| [UAL2_Standard](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/Animations/UAL2_Standard/) | Universal Animation Library 2 | Quaternius | [Universal Animation Library 2](https://quaternius.com/packs/universalanimationlibrary2.html) | [CC0 1.0 Universal] |
-| [CyberpunkRobot](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/CyberpunkRobot/) | Cyberpunk Robot | Doink | [Sketchfab](https://sketchfab.com/3d-models/cyberpunk-robot-7f49cfa1aeb043aba44bb96b72cd9160) | [Creative Commons Attribution 4.0] |
-| [Halberd](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/Halberd/) | Halberd | BryceBarry | [Sketchfab](https://sketchfab.com/3d-models/halberd-bfca19ab58da4372884571ab1a91d967) | [Creative Commons Attribution 4.0] |
-| [LowpolyRobot](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Enemies/LowpolyRobot) | Lowpoly Robot NA-19 | sneartser | [Sketchfab](https://sketchfab.com/3d-models/lowpoly-robot-na-19-e12046834ada45e684aa549861c9b454) | [Creative Commons Attribution 4.0] |
-| [Road](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Environment/Road) | Road Modular | golukumar | [Sketchfab](https://sketchfab.com/3d-models/road-modular-74f74f8569ac410f80266d3f1603bffd)| [Creative Commons Attribution 4.0] |
-| [ElectricPole](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Environment/ElectricPole) | Electric Pole | Baidhar Hembram | [Sketchfab](https://sketchfab.com/3d-models/electric-pole-a2d5d63f6e2b41e1978f928737fef063) | [Creative Commons Attribution 4.0] |
+| Directory | Asset Name | Author | Source | License |
+| --------- | ---------- | ------ | ------ | ------- |
+| [Dirt](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Environment/Plane/Dirt) | Dirt | Charlotte Baglioni | [polyhaven.com](https://polyhaven.com/a/dirt) | [CC0 1.0] |
+| [UAL1_Standard](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/Animations/UAL1_Standard/) | Universal Animation Library | Quaternius | [quaternius.com](https://quaternius.com/packs/universalanimationlibrary.html) | [CC0 1.0] |
+| [UAL2_Standard](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/Animations/UAL2_Standard/) | Universal Animation Library 2 | Quaternius | [quaternius.com](https://quaternius.com/packs/universalanimationlibrary2.html) | [CC0 1.0] |
+| [CyberpunkRobot](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/CyberpunkRobot/) | Cyberpunk Robot | Doink | [sketchfab.com](https://sketchfab.com/3d-models/cyberpunk-robot-7f49cfa1aeb043aba44bb96b72cd9160) | [CC BY 4.0] |
+| [Halberd](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Character/Halberd/) | Halberd | BryceBarry | [sketchfab.com](https://sketchfab.com/3d-models/halberd-bfca19ab58da4372884571ab1a91d967) | [CC BY 4.0] |
+| [LowpolyRobot](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Enemies/LowpolyRobot) | Lowpoly Robot NA-19 | sneartser | [sketchfab.com](https://sketchfab.com/3d-models/lowpoly-robot-na-19-e12046834ada45e684aa549861c9b454) | [CC BY 4.0] |
+| [Road](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Environment/Road) | Road Modular | golukumar | [sketchfab.com](https://sketchfab.com/3d-models/road-modular-74f74f8569ac410f80266d3f1603bffd)| [CC BY 4.0] |
+| [ElectricPole](https://github.com/MatthieuHernandez/HyperSlash/tree/main/Content/HyperSlash/Environment/ElectricPole) | Electric Pole | Baidhar Hembram | [sketchfab.com](https://sketchfab.com/3d-models/electric-pole-a2d5d63f6e2b41e1978f928737fef063) | [CC BY 4.0] |
 
 **NOTE:** Some third-party assets may have been modified, converted, retargeted, optimized, or otherwise adapted to integrate with this project. Such modifications do not alter the original license of the third-party assets, which remain subject to their respective licenses.
 
@@ -64,6 +65,6 @@ This project was developed using Unreal Engine.
 No Unreal Engine source code, binaries, or runtime components are intended to be distributed with this repository. Any such files remain subject to the [Unreal Engine End User License Agreement] and are not covered by the MIT License.
 
 [MIT License]: LICENSE
-[CC0 1.0 Universal]: https://creativecommons.org/publicdomain/zero/1.0/
-[Creative Commons Attribution 4.0]: https://creativecommons.org/licenses/by/4.0/
+[CC0 1.0]: https://creativecommons.org/publicdomain/zero/1.0/
+[CC BY 4.0]: https://creativecommons.org/licenses/by/4.0/
 [Unreal Engine End User License Agreement]: https://www.unrealengine.com/eula/unreal

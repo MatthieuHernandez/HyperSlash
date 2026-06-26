@@ -11,6 +11,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "Camera/CameraActor.h"
+#include "Weapon.h"
 
 AHyperSlashCharacter::AHyperSlashCharacter()
 {
@@ -60,7 +61,7 @@ void AHyperSlashCharacter::BeginPlay()
     }
     if (WeaponClass)
     {
-        equippedWeapon = GetWorld()->SpawnActor<AActor>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator);
+        equippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator);
         if (equippedWeapon)
         {
             equippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("hand_socket_r"));
@@ -97,14 +98,24 @@ void AHyperSlashCharacter::PlayDashAttackAnimation()
 
 void AHyperSlashCharacter::PerformAttack()
 {
-    if (!CanAct()) return;
     PlayAttackAnimation();
     Attack();
+
+    float attackDuration = AttackAnimation->GetPlayLength();
+
+    isAttacking = true;
+    equippedWeapon->EnableHitbox();
+    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndAttack, attackDuration, false);
+}
+
+void AHyperSlashCharacter::EndAttack()
+{
+    equippedWeapon->DisableHitbox();
+    isAttacking = false;
 }
 
 void AHyperSlashCharacter::PerformDashAttack()
 {
-    if (!CanAct()) return;
     PlayDashAttackAnimation();
     Attack();
 
@@ -116,7 +127,14 @@ void AHyperSlashCharacter::PerformDashAttack()
     dashAttackVector *= DashDistance * dashDuration * DashSpeed;
 
     isDashing = true;
-    GetWorldTimerManager().SetTimer(dashTimer, [this]() {isDashing = false; }, dashDuration, false);
+    equippedWeapon->EnableHitbox();
+    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndDashAttack, dashDuration, false);
+}
+
+void AHyperSlashCharacter::EndDashAttack()
+{
+    equippedWeapon->DisableHitbox();
+    isDashing = false;
 }
 
 void AHyperSlashCharacter::BeHit(Direction D)
@@ -184,5 +202,5 @@ void AHyperSlashCharacter::Die()
 
 bool AHyperSlashCharacter::CanAct() const
 {
-    return canAct && !isDashing;
+    return canAct && !isDashing && !isAttacking;
 }

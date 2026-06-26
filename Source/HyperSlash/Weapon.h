@@ -13,7 +13,7 @@ class HYPERSLASH_API AWeapon : public AActor
     GENERATED_BODY()
 
 private:
-    UBoxComponent* Hitbox;
+    UBoxComponent* hitbox;
 
 protected:
     virtual void BeginPlay() override;
@@ -23,6 +23,10 @@ protected:
 
 public:
     AWeapon();
+
     virtual void Tick(float DeltaTime) override;
 
+    void EnableHitbox();
+
+    void DisableHitbox();
 };

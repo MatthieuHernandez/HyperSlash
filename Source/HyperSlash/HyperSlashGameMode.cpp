@@ -4,6 +4,7 @@
 #include "GameOverUserWidget.h"
 #include "InGameUserWidget.h"
 #include "HyperSlashCharacter.h"
+#include "MusicEngine.h"
 
 AHyperSlashGameMode::AHyperSlashGameMode()
 {
@@ -26,6 +27,8 @@ void AHyperSlashGameMode::StartPlay()
             }
         }
     }
+    UMusicEngine* musicEngine = GetGameInstance()->GetSubsystem<UMusicEngine>();
+    musicEngine->PlayDesertMusic();
 }
 
 
