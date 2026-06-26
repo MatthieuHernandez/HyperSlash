@@ -49,3 +49,7 @@ next_step "Build the game for Linux"
   -unattended \
   -stdout \
   -verbose
+
+next_step "Clear the FILES"
+rm -rf "$PROJECT_ROOT/Binaries/Package/Linux/HyperSlash/Content/strudel-autoplay/strudel-autoplay.exe"
+rm -rf "$PROJECT_ROOT/Binaries/Package/Windows/HyperSlash/Content/strudel-autoplay/strudel-autoplay-linux"

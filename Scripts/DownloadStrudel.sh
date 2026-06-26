@@ -9,13 +9,16 @@ VERSION="${1:?Usage: ./build.sh <version>}"
 
 
 echo "Downloading $VERSION version..."
+curl -L "https://github.com/MatthieuHernandez/strudel-autoplay/releases/download/$VERSION/strudel-autoplay-$VERSION-linux-x86_64.zip" -o "./strudel-autoplay-$VERSION-linux-x86_64.zip"
 curl -L "https://github.com/MatthieuHernandez/strudel-autoplay/releases/download/$VERSION/strudel-autoplay-$VERSION-win32-x64.zip" -o "./strudel-autoplay-$VERSION-win32-x64.zip"
 
-echo "Removing existing directory..."
-rm -rf "./strudel-autoplay"
-
 echo "Extracting archive..."
-unzip -q "./strudel-autoplay-$VERSION-win32-x64.zip" -d "./strudel-autoplay"
+unzip -Coq "./strudel-autoplay-$VERSION-win32-x64.zip" -d "./Content/strudel-autoplay/tmp1"
+unzip -Coq "./strudel-autoplay-$VERSION-linux-x86_64.zip" -d "./Content/strudel-autoplay/tmp2"
+
+cp ./Content/strudel-autoplay/tmp1/strudel-autoplay ./Content/strudel-autoplay/strudel-autoplay.exe
+cp ./Content/strudel-autoplay/tmp2/strudel-autoplay ./Content/strudel-autoplay/strudel-autoplay-linux
 
 echo "Cleaning up..."
-rm -rf "./strudel-autoplay-$VERSION-win32-x64.zip"
+rm -rf ./Content/strudel-autoplay/tmp*
+rm -rf ./*.zip
