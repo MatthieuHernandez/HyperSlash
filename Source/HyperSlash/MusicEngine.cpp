@@ -9,7 +9,7 @@ void UMusicEngine::Initialize(FSubsystemCollectionBase& Collection)
 
 bool UMusicEngine::load(FString& fileContent, const FString& file)
 {
-    auto filePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("strudel-autoplay"), file);
+    auto filePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("Content/strudel-autoplay"), file);
     if (!FFileHelper::LoadFileToString(fileContent, *filePath))
     {
         UE_LOG(LogTemp, Warning, TEXT("Unable to load Strudel file: %s"), *filePath);
@@ -20,7 +20,7 @@ bool UMusicEngine::load(FString& fileContent, const FString& file)
 
 bool UMusicEngine::save(const FString fileContent, const FString& file)
 {
-    auto filePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("strudel-autoplay"), file);
+    auto filePath = FPaths::Combine(FPaths::ProjectDir(), TEXT("Content/strudel-autoplay"), file);
     if (!FFileHelper::SaveStringToFile(fileContent, *filePath))
     {
         UE_LOG(LogTemp, Warning, TEXT("Unable to load Strudel file: %s"), *filePath);

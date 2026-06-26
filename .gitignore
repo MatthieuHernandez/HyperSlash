@@ -75,4 +75,5 @@ Plugins/**/Intermediate/*
 DerivedDataCache/*
 
 # Must be downloaded
-strudel-autoplay/strudel-autoplay.exe
+strudel-autoplay*
+live.strudel
