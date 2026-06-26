@@ -1,0 +1,35 @@
+const MASTER_VOLUME = 0.8;
+
+// Desert
+setcpm(120)
+
+const kick_1 = sound("<[mt,sd] cp [mt,sd] cp>")
+  .bank("akaimpc60")
+  .gain(0.5)
+  .lpf(200)
+
+const kick_2 = sound("<[hh hh] [hh hh] [hh hh] cp>")
+  .bank("rolandd70")
+  .gain(1.0)
+
+const kick_3 = note("<f2 g#2 f2 c#2>").
+  sound("gm_muted_trumpet")
+  .lpf("<800>")
+  .gain(1.0)
+  .clip(0.8)
+
+const lead_1 = note("<[c#3 a#3] [f#3 a#3] [f#3 a#3] g#3>")
+  .clip(            "<[1.2 1.0] [1.2 1.0] [1.0 1.5] 1.2>")
+  .sound("gm_koto")
+  .gain(1.0)
+  .transpose("<0>/4")
+  .attack("<0>/4")
+
+
+$: stack(
+  lead_1,
+  kick_1,
+  kick_2,
+  kick_3
+).gain(MASTER_VOLUME)
+

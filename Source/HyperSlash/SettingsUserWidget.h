@@ -3,8 +3,11 @@
 #include "Blueprint/UserWidget.h"
 #include "SettingsUserWidget.generated.h"
 
+class USoundClass;
+class USoundBase;
 class UButton;
 class UTextBlock;
+class USlider;
 class UMainMenuUserWidget;
 
 UCLASS(abstract)
@@ -17,6 +20,12 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
     TSubclassOf<UMainMenuUserWidget> MainMenuClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    USoundClass* MasterSoundClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio")
+    TObjectPtr<USoundBase> TestSound;
 
     UPROPERTY(meta = (BindWidgetOptional))
     UButton* RightScreenModeButton;
@@ -46,6 +55,18 @@ protected:
     UButton* LeftVsyncButton;
 
     UPROPERTY(meta = (BindWidgetOptional))
+    USlider* MusicVolumeSlider;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    UTextBlock* MusicVolumeText;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    USlider* SoundEffectsVolumeSlider;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    UTextBlock* SoundEffectsVolumeText;
+
+    UPROPERTY(meta = (BindWidgetOptional))
     UButton* BackButton;
 
 private:
@@ -67,6 +88,18 @@ private:
 
     UFUNCTION()
     void OnRightVsyncClicked();
+
+    UFUNCTION()
+    void OnMusicVolumeSliderChanged(float value);
+
+    UFUNCTION()
+    void OnMusicVolumeSliderReleased();
+
+    UFUNCTION()
+    void OnSoundEffectsVolumeSliderChanged(float value);
+
+    UFUNCTION()
+    void OnSoundEffectsVolumeSliderReleased();
 
     UFUNCTION()
     void OnBackClicked();
