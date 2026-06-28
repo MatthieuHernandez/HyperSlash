@@ -192,7 +192,7 @@ void AHyperSlashCharacter::EnemyKilled() {
     OnScoreChanged.Broadcast(score, scoreMultiplier);
 }
 
-void AHyperSlashCharacter::Die() 
+void AHyperSlashCharacter::Die()
 {
     if (auto* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
     {
