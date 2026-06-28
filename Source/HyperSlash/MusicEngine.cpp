@@ -5,6 +5,8 @@ void UMusicEngine::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
     liveFile = "live.strudel";
+    variablesFile = "variables.strudel";
+    SetMasterVolume(1.0f);
 }
 
 bool UMusicEngine::load(FString& fileContent, const FString& file)
@@ -46,10 +48,10 @@ void UMusicEngine::copyIntoLive(const FString& file)
     }
 }
 
-void UMusicEngine::SetMasterVolume(float value)
+void UMusicEngine::SetMasterVolume(float value, const FString& file)
 {
     FString fileContent;
-    if (load(fileContent, *liveFile))
+    if (load(fileContent, *file))
     {
         const FRegexPattern Pattern(TEXT(R"(const\s+MASTER_VOLUME\s*=\s*[\d.]+;)"));
         FRegexMatcher Matcher(Pattern, fileContent);
@@ -59,21 +61,27 @@ void UMusicEngine::SetMasterVolume(float value)
             fileContent = fileContent.Left(Matcher.GetMatchBeginning())
                 + Replacement
                 + fileContent.Mid(Matcher.GetMatchEnding());
-            save(fileContent, *liveFile);
+            save(fileContent, *file);
         }
     }
+}
+
+void UMusicEngine::SetMasterVolume(float value)
+{
+    SetMasterVolume(value, variablesFile);
+    SetMasterVolume(value, liveFile);
 }
 
 void UMusicEngine::PlayMenuMusic()
 {
     clearLive();
-    copyIntoLive("variables.strudel");
+    copyIntoLive(variablesFile);
     copyIntoLive("menu.strudel");
 }
 
 void UMusicEngine::PlayDesertMusic()
 {
     clearLive();
-    copyIntoLive("variables.strudel");
+    copyIntoLive(variablesFile);
     copyIntoLive("desert.strudel");
 }
