@@ -14,6 +14,8 @@ UCLASS(abstract)
 class AHyperSlashEnemy : public ACharacter
 {
     GENERATED_BODY()
+private:
+    void PlaySpawnAnimation();
 
 protected:
     /** Time to wait after this NPC is hit before destroying it */
@@ -25,6 +27,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Death")
     TObjectPtr<UNiagaraSystem> BloodSpurt;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawn")
+    TObjectPtr<UNiagaraSystem> DigUpDirt;
 
     /** Deferred destruction timer */
     FTimerHandle DestructionTimer;
