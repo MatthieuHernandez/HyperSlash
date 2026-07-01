@@ -62,7 +62,7 @@ void AHyperSlashPlayerController::Tick(float DeltaSeconds)
     }
 
     FVector Delta = CachedDestination - player->GetActorLocation();
-    if (Delta.Size() > 100.0f)
+    if (Delta.Size() > 200.0f)
     {
         FVector WorldDirection = Delta.GetSafeNormal();
         player->AddMovementInput(WorldDirection, 1.0, false);

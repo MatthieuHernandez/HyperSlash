@@ -6,6 +6,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UAnimMontage;
 class AWeapon;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScoreChanged, int32, score, int32, scoreMultiplier);
@@ -20,6 +21,10 @@ private:
     bool canAct = true;
     bool isDashing = false;
     bool isAttacking = false;
+
+
+    void UpdateScoreStartAttack();
+    void UpdateScoreEndAttack();
 
     UFUNCTION()
     void EndAttack();
@@ -61,7 +66,7 @@ protected:
     TSubclassOf<AWeapon> WeaponClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-    UAnimSequence* AttackAnimation;
+    UAnimMontage* AttackAnimation;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* DashAttackAnimation;
@@ -99,8 +104,6 @@ public:
     void PerformDashAttack();
 
     void BeHit(Direction D);
-
-    void Attack();
 
     void EnemyKilled();
 

@@ -1,1 +1,1 @@
-const MASTER_VOLUME = 1.00;
+const MASTER_VOLUME = 0.04;

@@ -80,48 +80,43 @@ void AHyperSlashCharacter::Tick(float DeltaSeconds)
 
 void AHyperSlashCharacter::PlayAttackAnimation()
 {
-    if (!AttackAnimation) return;
     if (auto* animInstance = GetMesh()->GetAnimInstance())
     {
-        auto* montage = animInstance->PlaySlotAnimationAsDynamicMontage(AttackAnimation, FName("DefaultSlot"), 0.0f, 0.0f);
-        if (montage)
-        {
-            animInstance->Montage_SetPlayRate(montage, 1.0f);
-        }
+        animInstance->Montage_Play(AttackAnimation);
     }
+}
+
+void AHyperSlashCharacter::EndAttack()
+{
+    UpdateScoreEndAttack();
+    equippedWeapon->DisableHitbox();
+    isAttacking = false;
 }
 
 void AHyperSlashCharacter::PlayDashAttackAnimation()
 {
-    if (!AttackAnimation) return;
-    if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+    if (auto* animInstance = GetMesh()->GetAnimInstance())
     {
-        AnimInstance->PlaySlotAnimationAsDynamicMontage(DashAttackAnimation, FName("DefaultSlot"), 0.15f, 0.15f, DashSpeed);
+        animInstance->PlaySlotAnimationAsDynamicMontage(DashAttackAnimation, FName("DefaultSlot"), 0.15f, 0.15f, DashSpeed);
     }
 }
 
 void AHyperSlashCharacter::PerformAttack()
 {
+    UpdateScoreStartAttack();
     PlayAttackAnimation();
-    Attack();
 
-    float attackDuration = AttackAnimation->GetPlayLength();
+    const float attackDuration = AttackAnimation->GetSectionLength(0);
 
     isAttacking = true;
     equippedWeapon->EnableHitbox();
     GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndAttack, attackDuration, false);
 }
 
-void AHyperSlashCharacter::EndAttack()
-{
-    equippedWeapon->DisableHitbox();
-    isAttacking = false;
-}
-
 void AHyperSlashCharacter::PerformDashAttack()
 {
+    UpdateScoreStartAttack();
     PlayDashAttackAnimation();
-    Attack();
 
     float dashDuration = DashAttackAnimation->GetPlayLength() / DashSpeed;
 
@@ -137,6 +132,7 @@ void AHyperSlashCharacter::PerformDashAttack()
 
 void AHyperSlashCharacter::EndDashAttack()
 {
+    UpdateScoreEndAttack();
     equippedWeapon->DisableHitbox();
     isDashing = false;
 }
@@ -180,17 +176,24 @@ void AHyperSlashCharacter::BeHit(Direction D)
     GetWorldTimerManager().SetTimer(hitTimer, [this]() {canBeHit = true; }, 1.6f, false);
 }
 
-void AHyperSlashCharacter::Attack()
+void AHyperSlashCharacter::UpdateScoreStartAttack()
+{
+    scoreMultiplier++;
+    OnScoreChanged.Broadcast(score, scoreMultiplier);
+}
+
+void AHyperSlashCharacter::UpdateScoreEndAttack()
 {
     if (numberOfEnemyKilledByPreviousAttack == 0)
     {
         scoreMultiplier = (scoreMultiplier / 2);
     }
-    scoreMultiplier++;
     numberOfEnemyKilledByPreviousAttack = 0;
+    OnScoreChanged.Broadcast(score, scoreMultiplier);
 }
 
-void AHyperSlashCharacter::EnemyKilled() {
+void AHyperSlashCharacter::EnemyKilled()
+{
     numberOfEnemyKilledByPreviousAttack++;
     score += numberOfEnemyKilledByPreviousAttack * scoreMultiplier;
     OnScoreChanged.Broadcast(score, scoreMultiplier);
