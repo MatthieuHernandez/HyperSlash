@@ -6,7 +6,6 @@
 
 void UMainMenuUserWidget::NativeConstruct()
 {
-    USettingsUserWidget::InitializeSettings();
     Super::NativeConstruct();
     if (PlayButton &&
         QuitButton &&
