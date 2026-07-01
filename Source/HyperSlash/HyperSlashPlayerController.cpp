@@ -84,7 +84,7 @@ void AHyperSlashPlayerController::SetupInputComponent()
         }
         if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
         {
-            EnhancedInputComponent->BindAction(SetAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnAttack);
+            EnhancedInputComponent->BindAction(SetCircularAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnCircularAttack);
             EnhancedInputComponent->BindAction(SetDashAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnDashAttack);
         }
     }
@@ -98,12 +98,12 @@ void AHyperSlashPlayerController::OrientPlayer(AHyperSlashCharacter* Charactere)
     Charactere->SetActorRotation(Direction.Rotation());
 }
 
-void AHyperSlashPlayerController::OnAttack()
+void AHyperSlashPlayerController::OnCircularAttack()
 {
     AHyperSlashCharacter* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
     if (Charactere && Charactere->CanAct()) {
         OrientPlayer(Charactere);
-        Charactere->PerformAttack();
+        Charactere->PerformCircularAttack();
     }
 }
 

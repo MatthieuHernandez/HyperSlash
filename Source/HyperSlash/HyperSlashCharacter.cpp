@@ -78,15 +78,15 @@ void AHyperSlashCharacter::Tick(float DeltaSeconds)
     }
 }
 
-void AHyperSlashCharacter::PlayAttackAnimation()
+void AHyperSlashCharacter::PlayCircularAttackAnimation()
 {
     if (auto* animInstance = GetMesh()->GetAnimInstance())
     {
-        animInstance->Montage_Play(AttackAnimation);
+        animInstance->Montage_Play(CircularAttackAnimation);
     }
 }
 
-void AHyperSlashCharacter::EndAttack()
+void AHyperSlashCharacter::EndCircularAttack()
 {
     UpdateScoreEndAttack();
     equippedWeapon->DisableHitbox();
@@ -101,16 +101,15 @@ void AHyperSlashCharacter::PlayDashAttackAnimation()
     }
 }
 
-void AHyperSlashCharacter::PerformAttack()
+void AHyperSlashCharacter::PerformCircularAttack()
 {
     UpdateScoreStartAttack();
-    PlayAttackAnimation();
+    PlayCircularAttackAnimation();
 
-    const float attackDuration = AttackAnimation->GetSectionLength(0);
-
+    const float attackDuration = CircularAttackAnimation->GetSectionLength(0);
     isAttacking = true;
     equippedWeapon->EnableHitbox();
-    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndAttack, attackDuration, false);
+    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndCircularAttack, attackDuration, false);
 }
 
 void AHyperSlashCharacter::PerformDashAttack()

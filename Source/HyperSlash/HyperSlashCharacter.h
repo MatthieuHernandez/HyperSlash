@@ -27,7 +27,7 @@ private:
     void UpdateScoreEndAttack();
 
     UFUNCTION()
-    void EndAttack();
+    void EndCircularAttack();
 
     UFUNCTION()
     void EndDashAttack();
@@ -47,7 +47,7 @@ private:
 
     FVector dashAttackVector;
 
-    void PlayAttackAnimation();
+    void PlayCircularAttackAnimation();
     void PlayDashAttackAnimation();
 
     AWeapon* equippedWeapon;
@@ -66,7 +66,7 @@ protected:
     TSubclassOf<AWeapon> WeaponClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-    UAnimMontage* AttackAnimation;
+    UAnimMontage* CircularAttackAnimation;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* DashAttackAnimation;
@@ -98,7 +98,7 @@ public:
     FOnScoreChanged OnScoreChanged;
 
     UFUNCTION()
-    void PerformAttack();
+    void PerformCircularAttack();
 
     UFUNCTION()
     void PerformDashAttack();
