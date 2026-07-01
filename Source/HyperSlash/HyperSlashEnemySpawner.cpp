@@ -50,14 +50,25 @@ void AHyperSlashEnemySpawner::SpawnEnemy()
 {
     if (SpawnCount < SpawnGroupSize)
     {
-        FTransform SpawnTransform(GetActorRotation(), GetRandomSpawnLocation(), FVector::OneVector);
-        AHyperSlashEnemy* enemy = GetWorld()->SpawnActor<AHyperSlashEnemy>(EnemyClass, SpawnTransform);
-        if (enemy)
+        AHyperSlashEnemy* enemy = nullptr;
+        for (int32 attempt = 0; attempt < 15; ++attempt)
         {
-            enemy->SpawnDefaultController();
+            const FTransform spawnTransform(GetActorRotation(), GetRandomSpawnLocation(), FVector::OneVector);
+            FActorSpawnParameters spawnParams;
+            spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+            enemy = GetWorld()->SpawnActor<AHyperSlashEnemy>(EnemyClass, spawnTransform, spawnParams);
+            if (enemy)
+            {
+                enemy->SpawnDefaultController();
+                ++SpawnCount;
+                GetWorld()->GetTimerManager().SetTimer(SpawnEnemyTimer, this, &AHyperSlashEnemySpawner::SpawnEnemy, FMath::RandRange(0.3f, 0.6f), false);
+                break;
+            }
         }
-        ++SpawnCount;
-        GetWorld()->GetTimerManager().SetTimer(SpawnEnemyTimer, this, &AHyperSlashEnemySpawner::SpawnEnemy, FMath::RandRange(0.3f, 0.6f), false);
+        if (!enemy)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Enemy cannot spawn"));
+        }
     }
 }
 

@@ -245,8 +245,6 @@ void USettingsUserWidget::OnMusicVolumeSliderReleased()
     if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
     {
         UGameplayStatics::SaveGameToSlot(gameInstance->Settings, TEXT("Settings"), 0);
-        UE_LOG(LogTemp, Warning, TEXT("Settings->MusicVolume: %.2f"), gameInstance->Settings->MusicVolume);
-        UE_LOG(LogTemp, Warning, TEXT("Settings->MusicVolume saved"));
     }
 }
 

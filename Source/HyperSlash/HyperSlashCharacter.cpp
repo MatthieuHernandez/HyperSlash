@@ -81,9 +81,13 @@ void AHyperSlashCharacter::Tick(float DeltaSeconds)
 void AHyperSlashCharacter::PlayAttackAnimation()
 {
     if (!AttackAnimation) return;
-    if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+    if (auto* animInstance = GetMesh()->GetAnimInstance())
     {
-        AnimInstance->PlaySlotAnimationAsDynamicMontage(AttackAnimation, FName("DefaultSlot"));
+        auto* montage = animInstance->PlaySlotAnimationAsDynamicMontage(AttackAnimation, FName("DefaultSlot"), 0.0f, 0.0f);
+        if (montage)
+        {
+            animInstance->Montage_SetPlayRate(montage, 1.0f);
+        }
     }
 }
 

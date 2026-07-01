@@ -24,7 +24,6 @@ void UHyperSlashGameInstance::OnStart()
     Super::OnStart();
     UMusicEngine* musicEngine = GetSubsystem<UMusicEngine>();
     if (musicEngine) {
-        UE_LOG(LogTemp, Warning, TEXT("Settings->MusicVolume: %.2f"), Settings->MusicVolume);
         musicEngine->SetMasterVolume(Settings->MusicVolume);
     }
     const auto ExecutableName =
@@ -54,11 +53,11 @@ void UHyperSlashGameInstance::OnStart()
 
 void UHyperSlashGameInstance::Shutdown()
 {
-    Super::Shutdown();
     if (audioProcessHandle.IsValid())
     {
         FPlatformProcess::TerminateProc(audioProcessHandle, true);
         FPlatformProcess::CloseProc(audioProcessHandle);
         audioProcessHandle.Reset();
     }
+    Super::Shutdown();
 }
