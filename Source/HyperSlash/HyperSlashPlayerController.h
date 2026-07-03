@@ -42,6 +42,12 @@ protected:
     UPROPERTY(EditAnywhere, Category="Input")
     TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
+    UPROPERTY(EditAnywhere, Category = "Distance")
+    float DistanceMinBeforeMoving;
+
+    UPROPERTY(EditAnywhere, Category = "Distance")
+    float DistanceMinBeforeTeleportation;
+
     /** True if the controlled character should navigate to the mouse cursor. */
     uint32 bMoveToMouseCursor : 1;
 
@@ -62,6 +68,8 @@ public:
 
     virtual void Tick(float DeltaSeconds) override;
 
+    void TeleportPlayer();
+
 protected:
 
     /** Initialize input bindings */
@@ -75,6 +83,8 @@ protected:
     void OnCircularAttack();
 
     void OnDashAttack();
+
+    void OnTeleportation();
 };
 
 

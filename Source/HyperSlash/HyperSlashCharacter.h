@@ -49,6 +49,7 @@ private:
 
     void PlayCircularAttackAnimation();
     void PlayDashAttackAnimation();
+    void PlayTeleportationAnimation();
 
     AWeapon* equippedWeapon;
 
@@ -70,6 +71,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* DashAttackAnimation;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimMontage* TeleportationAnimation;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* HitFrontAnnimation;
@@ -102,6 +106,9 @@ public:
 
     UFUNCTION()
     void PerformDashAttack();
+
+    UFUNCTION()
+    void PerformTeleportation();
 
     void BeHit(Direction D);
 

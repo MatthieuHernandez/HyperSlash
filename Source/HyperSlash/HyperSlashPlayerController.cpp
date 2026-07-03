@@ -23,7 +23,10 @@ AHyperSlashPlayerController::AHyperSlashPlayerController()
     // configure the controller
     DefaultMouseCursor = EMouseCursor::Default;
     CachedDestination = FVector::ZeroVector;
-    FollowTime = 0.f;
+    FollowTime = 0.0f;
+
+    DistanceMinBeforeMoving = 200.0f;
+    DistanceMinBeforeTeleportation = 2000.0f;
 }
 
 void AHyperSlashPlayerController::BeginPlay()
@@ -62,10 +65,22 @@ void AHyperSlashPlayerController::Tick(float DeltaSeconds)
     }
 
     FVector Delta = CachedDestination - player->GetActorLocation();
-    if (Delta.Size() > 200.0f)
+    if (Delta.Size() >= DistanceMinBeforeTeleportation)
+    {
+        OnTeleportation();
+    }
+    else if (Delta.Size() >= DistanceMinBeforeMoving)
     {
         FVector WorldDirection = Delta.GetSafeNormal();
         player->AddMovementInput(WorldDirection, 1.0, false);
+    }
+}
+
+void AHyperSlashPlayerController::TeleportPlayer()
+{
+    if (auto* player = Cast<AHyperSlashCharacter>(GetPawn()))
+    {
+        player->TeleportTo(CachedDestination, player->GetActorRotation());
     }
 }
 
@@ -78,11 +93,11 @@ void AHyperSlashPlayerController::SetupInputComponent()
     if (IsLocalPlayerController())
     {
         // Add Input Mapping Context
-        if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+        if (auto* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
         {
             Subsystem->AddMappingContext(DefaultMappingContext, 0);
         }
-        if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+        if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
         {
             EnhancedInputComponent->BindAction(SetCircularAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnCircularAttack);
             EnhancedInputComponent->BindAction(SetDashAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnDashAttack);
@@ -100,7 +115,7 @@ void AHyperSlashPlayerController::OrientPlayer(AHyperSlashCharacter* Charactere)
 
 void AHyperSlashPlayerController::OnCircularAttack()
 {
-    AHyperSlashCharacter* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
+    auto* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
     if (Charactere && Charactere->CanAct()) {
         OrientPlayer(Charactere);
         Charactere->PerformCircularAttack();
@@ -109,10 +124,19 @@ void AHyperSlashPlayerController::OnCircularAttack()
 
 void AHyperSlashPlayerController::OnDashAttack()
 {
-    AHyperSlashCharacter* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
+    auto* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
     if (Charactere && Charactere->CanAct()) {
         OrientPlayer(Charactere);
         Charactere->PerformDashAttack();
+    }
+}
+
+void AHyperSlashPlayerController::OnTeleportation()
+{
+    auto* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
+    if (Charactere && Charactere->CanAct()) {
+        OrientPlayer(Charactere);
+        Charactere->PerformTeleportation();
     }
 }
 

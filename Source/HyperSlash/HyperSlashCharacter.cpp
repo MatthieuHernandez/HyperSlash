@@ -101,6 +101,14 @@ void AHyperSlashCharacter::PlayDashAttackAnimation()
     }
 }
 
+void AHyperSlashCharacter::PlayTeleportationAnimation()
+{
+    if (auto* animInstance = GetMesh()->GetAnimInstance())
+    {
+        animInstance->Montage_Play(TeleportationAnimation);
+    }
+}
+
 void AHyperSlashCharacter::PerformCircularAttack()
 {
     UpdateScoreStartAttack();
@@ -127,6 +135,11 @@ void AHyperSlashCharacter::PerformDashAttack()
     isDashing = true;
     equippedWeapon->EnableHitbox();
     GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndDashAttack, dashDuration, false);
+}
+
+void AHyperSlashCharacter::PerformTeleportation()
+{
+    PlayTeleportationAnimation();
 }
 
 void AHyperSlashCharacter::EndDashAttack()
