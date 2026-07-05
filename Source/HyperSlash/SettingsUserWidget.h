@@ -108,14 +108,12 @@ private:
     inline static std::array<FString, 4> ResolutionOptions = {"2560x1440", "1366x768", "1600x900", "1920x1080"};
     inline static std::array<FString, 2> VsyncOptions = {"On ", "Off"};
 
-    inline static uint32 ScreenModeIndex = 0;
-    inline static uint32 ResolutionIndex = 0;
-    inline static uint32 VsyncIndex = 0;
-
-    static void ChangeScreenMode(uint32 index);
-    static void ChangeResolution(uint32 index);
-    static void ChangeVsync(uint32 index);
+    void ChangeScreenMode(uint32 index);
+    void ChangeResolution(uint32 index);
+    void ChangeVsync(uint32 index);
+    void ChangeMusicVolume(float value);
+    void ChangeSoundEffectVolume(float value);
 
 public:
-    static void InitializeSettings();
+    void InitializeSettings();
 };

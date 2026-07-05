@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -76,48 +77,77 @@ void AHyperSlashCharacter::Tick(float DeltaSeconds)
     {
         AddActorWorldOffset(dashAttackVector * DeltaSeconds, true);
     }
-}
-
-void AHyperSlashCharacter::PlayAttackAnimation()
-{
-    if (!AttackAnimation) return;
-    if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+    if (CanAct())
     {
-        AnimInstance->PlaySlotAnimationAsDynamicMontage(AttackAnimation, FName("DefaultSlot"));
+        if (WantPerformTeleportation)
+        {
+            PerformTeleportation();
+            WantPerformTeleportation = false;
+        }
+        else if (WantPerformCircularAttack)
+        {
+            PerformCircularAttack();
+            WantPerformCircularAttack = false;
+        }
+        else if (WantPerformDashAttack)
+        {
+            PerformDashAttack();
+            WantPerformDashAttack = false;
+        }
     }
 }
 
-void AHyperSlashCharacter::PlayDashAttackAnimation()
+void AHyperSlashCharacter::PlayCircularAttackAnimation()
 {
-    if (!AttackAnimation) return;
-    if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+    if (auto* animInstance = GetMesh()->GetAnimInstance())
     {
-        AnimInstance->PlaySlotAnimationAsDynamicMontage(DashAttackAnimation, FName("DefaultSlot"), 0.15f, 0.15f, DashSpeed);
+        animInstance->Montage_Play(CircularAttackAnimation);
+    }
+    if (SlashSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, SlashSound, GetActorLocation(), 1.0f, 1.0f, 0.0f);
     }
 }
 
-void AHyperSlashCharacter::PerformAttack()
+void AHyperSlashCharacter::EndCircularAttack()
 {
-    PlayAttackAnimation();
-    Attack();
-
-    float attackDuration = AttackAnimation->GetPlayLength();
-
-    isAttacking = true;
-    equippedWeapon->EnableHitbox();
-    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndAttack, attackDuration, false);
-}
-
-void AHyperSlashCharacter::EndAttack()
-{
+    UpdateScoreEndAttack();
     equippedWeapon->DisableHitbox();
     isAttacking = false;
 }
 
+void AHyperSlashCharacter::PlayDashAttackAnimation()
+{
+    if (auto* animInstance = GetMesh()->GetAnimInstance())
+    {
+        animInstance->PlaySlotAnimationAsDynamicMontage(DashAttackAnimation, FName("DefaultSlot"), 0.15f, 0.15f, DashSpeed);
+    }
+}
+
+void AHyperSlashCharacter::PlayTeleportationAnimation()
+{
+    if (auto* animInstance = GetMesh()->GetAnimInstance())
+    {
+        animInstance->Montage_Play(TeleportationAnimation);
+    }
+}
+
+void AHyperSlashCharacter::PerformCircularAttack()
+{
+    UpdateScoreStartAttack();
+    PlayCircularAttackAnimation();
+
+    const float attackDuration = CircularAttackAnimation->GetSectionLength(0);
+    isAttacking = true;
+    equippedWeapon->EnableHitbox();
+    FTimerHandle timer;
+    GetWorldTimerManager().SetTimer(timer, this, &AHyperSlashCharacter::EndCircularAttack, attackDuration, false);
+}
+
 void AHyperSlashCharacter::PerformDashAttack()
 {
+    UpdateScoreStartAttack();
     PlayDashAttackAnimation();
-    Attack();
 
     float dashDuration = DashAttackAnimation->GetPlayLength() / DashSpeed;
 
@@ -128,11 +158,22 @@ void AHyperSlashCharacter::PerformDashAttack()
 
     isDashing = true;
     equippedWeapon->EnableHitbox();
-    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndDashAttack, dashDuration, false);
+    FTimerHandle timer;
+    GetWorldTimerManager().SetTimer(timer, this, &AHyperSlashCharacter::EndDashAttack, dashDuration, false);
+}
+
+void AHyperSlashCharacter::PerformTeleportation()
+{
+    PlayTeleportationAnimation();
+    const float teleportationDuration = TeleportationAnimation->GetSectionLength(0);
+    isTeleporting = true;
+    FTimerHandle timer;
+    GetWorldTimerManager().SetTimer(timer, [this]() { isTeleporting = false; }, teleportationDuration, false);
 }
 
 void AHyperSlashCharacter::EndDashAttack()
 {
+    UpdateScoreEndAttack();
     equippedWeapon->DisableHitbox();
     isDashing = false;
 }
@@ -172,35 +213,45 @@ void AHyperSlashCharacter::BeHit(Direction D)
             AnimInstance->PlaySlotAnimationAsDynamicMontage(AnimSeq, FName("DefaultSlot"));
         }
     }
+    FTimerHandle actTimer;
     GetWorldTimerManager().SetTimer(actTimer, [this]() {canAct = true; }, 1.0f, false);
+    FTimerHandle hitTimer;
     GetWorldTimerManager().SetTimer(hitTimer, [this]() {canBeHit = true; }, 1.6f, false);
 }
 
-void AHyperSlashCharacter::Attack()
+void AHyperSlashCharacter::UpdateScoreStartAttack()
+{
+    scoreMultiplier++;
+    OnScoreChanged.Broadcast(score, scoreMultiplier);
+}
+
+void AHyperSlashCharacter::UpdateScoreEndAttack()
 {
     if (numberOfEnemyKilledByPreviousAttack == 0)
     {
         scoreMultiplier = (scoreMultiplier / 2);
     }
-    scoreMultiplier++;
     numberOfEnemyKilledByPreviousAttack = 0;
-}
-
-void AHyperSlashCharacter::EnemyKilled() {
-    numberOfEnemyKilledByPreviousAttack++;
-    score += numberOfEnemyKilledByPreviousAttack * scoreMultiplier;
     OnScoreChanged.Broadcast(score, scoreMultiplier);
 }
 
-void AHyperSlashCharacter::Die() 
+void AHyperSlashCharacter::EnemyKilled()
+{
+    numberOfEnemyKilledByPreviousAttack++;
+    score += (numberOfEnemyKilledByPreviousAttack + 1) * scoreMultiplier;
+    OnScoreChanged.Broadcast(score, scoreMultiplier);
+}
+
+void AHyperSlashCharacter::Die()
 {
     if (auto* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
     {
-        GetWorldTimerManager().SetTimer(dieTimer, GM, &AHyperSlashGameMode::GameOver, 1.2f, false);
+        FTimerHandle timer;
+        GetWorldTimerManager().SetTimer(timer, GM, &AHyperSlashGameMode::GameOver, 1.2f, false);
     }
 }
 
 bool AHyperSlashCharacter::CanAct() const
 {
-    return canAct && !isDashing && !isAttacking;
+    return canAct && !isDashing && !isAttacking && !isTeleporting;
 }

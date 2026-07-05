@@ -10,10 +10,13 @@ class HYPERSLASH_API UMusicEngine : public UGameInstanceSubsystem
     GENERATED_BODY()
 private:
     FString liveFile;
+    FString variablesFile;
+
     bool load(FString& fileContent, const FString& file);
     bool save(const FString fileContent, const FString& file);
     void clearLive();
     void copyIntoLive(const FString& file);
+    void SetMasterVolume(float value, const FString& file);
 
 public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;

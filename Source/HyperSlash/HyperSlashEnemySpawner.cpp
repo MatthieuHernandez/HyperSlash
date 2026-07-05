@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "HyperSlashEnemySpawner.h"
 #include "HyperSlashGameMode.h"
 #include "NavigationSystem.h"
@@ -10,18 +7,14 @@
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 
-// Sets default values
 AHyperSlashEnemySpawner::AHyperSlashEnemySpawner()
 {
     PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
 void AHyperSlashEnemySpawner::BeginPlay()
 {
     Super::BeginPlay();
-
-    // find the recast navmesh actor on the level
     TArray<AActor*> ActorList;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), ARecastNavMesh::StaticClass(), ActorList);
 
@@ -29,11 +22,7 @@ void AHyperSlashEnemySpawner::BeginPlay()
     {
         NavData = Cast<ARecastNavMesh>(ActorList[0]);
     }
-
-    // set up the spawn timer
     GetWorld()->GetTimerManager().SetTimer(SpawnEnemyGroupTimer, this, &AHyperSlashEnemySpawner::SpawnEnemyGroup, SpawnGroupDelay, true);
-
-    // spawn the first group of enemies
     SpawnEnemyGroup();
     
 }
@@ -47,10 +36,7 @@ void AHyperSlashEnemySpawner::EndPlay(EEndPlayReason::Type EndPlayReason)
 
 void AHyperSlashEnemySpawner::SpawnEnemyGroup()
 {
-    // reset the group spawn counter
     SpawnCount = 0;
-
-    // check if we're still under the max NPC cap
     if (AHyperSlashGameMode* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
     {
         if (GM->CanSpawnEnemies())
@@ -59,61 +45,36 @@ void AHyperSlashEnemySpawner::SpawnEnemyGroup()
         }
     }
 }
+
+void AHyperSlashEnemySpawner::SpawnEnemy()
+{
+    if (SpawnCount < SpawnGroupSize)
+    {
+        AHyperSlashEnemy* enemy = nullptr;
+        for (int32 attempt = 0; attempt < 15; ++attempt)
+        {
+            const FTransform spawnTransform(GetActorRotation(), GetRandomSpawnLocation(), FVector::OneVector);
+            FActorSpawnParameters spawnParams;
+            spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+            enemy = GetWorld()->SpawnActor<AHyperSlashEnemy>(EnemyClass, spawnTransform, spawnParams);
+            if (enemy)
+            {
+                enemy->SpawnDefaultController();
+                ++SpawnCount;
+                GetWorld()->GetTimerManager().SetTimer(SpawnEnemyTimer, this, &AHyperSlashEnemySpawner::SpawnEnemy, FMath::RandRange(0.3f, 0.6f), false);
+                break;
+            }
+        }
+        if (!enemy)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Enemy cannot spawn"));
+        }
+    }
+}
+
 FVector AHyperSlashEnemySpawner::GetRandomSpawnLocation()
 {
     FVector SpawnLocation = FVector::ZeroVector;
     SpawnLocation.Z = 1;
-
-    const int32 Side = FMath::RandRange(0, 3);
-    const auto Top = 3040.0;
-    const auto Bot = -2760.0;
-    const auto W = 4200.0;
-
-    switch (Side)
-    {
-    case 0: // Left
-        SpawnLocation.X = FMath::RandRange(Bot, Top);
-        SpawnLocation.Y = -W;
-        break;
-
-    case 1: // Right
-        SpawnLocation.X = FMath::RandRange(Bot, Top);
-        SpawnLocation.Y = W;
-        break;
-
-    case 2: // Top
-        SpawnLocation.X = Top;
-        SpawnLocation.Y = FMath::RandRange(-W, W);
-        break;
-
-    case 3: // Bottom
-        SpawnLocation.X = Bot;
-        SpawnLocation.Y = FMath::RandRange(-W, W);
-        break;
-
-    default:
-        return FVector::ZeroVector;
-    }
     return SpawnLocation;
-}
-
-void AHyperSlashEnemySpawner::SpawnEnemy()
-{
-    FTransform SpawnTransform(GetActorRotation(), GetRandomSpawnLocation(), FVector::OneVector);
-
-    // spawn the Enemy
-    AHyperSlashEnemy* enemy = GetWorld()->SpawnActor<AHyperSlashEnemy>(EnemyClass, SpawnTransform);
-    if (enemy)
-    {
-        enemy->SpawnDefaultController();
-    }
-
-    // increase the spawn counter
-    ++SpawnCount;
-
-    // do we still have enemies left to spawn?
-    if (SpawnCount < SpawnGroupSize)
-    {
-        GetWorld()->GetTimerManager().SetTimer(SpawnEnemyTimer, this, &AHyperSlashEnemySpawner::SpawnEnemy, 0.1f, false); //FMath::RandRange(0.33f, 0.66f)
-    }
 }

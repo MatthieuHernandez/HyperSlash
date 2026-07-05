@@ -8,6 +8,7 @@
 #include "Sound/SoundClass.h"
 #include "Sound/SoundBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "HyperSlashGameInstance.h"
 
 void USettingsUserWidget::NativeConstruct()
 {
@@ -29,32 +30,72 @@ void USettingsUserWidget::NativeConstruct()
         RightVsyncButton->OnClicked.AddDynamic(this, &USettingsUserWidget::OnRightVsyncClicked);
         BackButton->OnClicked.AddDynamic(this, &USettingsUserWidget::OnBackClicked);
     }
-    if (ScreenModeText &&
-        ResolutionText &&
-        VsyncText)
-    {
-        ScreenModeText->SetText(FText::FromString(ScreenModeOptions[ScreenModeIndex]));
-        ResolutionText->SetText(FText::FromString(ResolutionOptions[ResolutionIndex]));
-        VsyncText->SetText(FText::FromString(VsyncOptions[VsyncIndex]));
-    }
     if (MusicVolumeSlider && SoundEffectsVolumeSlider) {
         MusicVolumeSlider->OnValueChanged.AddDynamic(this, &USettingsUserWidget::OnMusicVolumeSliderChanged);
         MusicVolumeSlider->OnMouseCaptureEnd.AddDynamic(this, &USettingsUserWidget::OnMusicVolumeSliderReleased);
         SoundEffectsVolumeSlider->OnValueChanged.AddDynamic(this, &USettingsUserWidget::OnSoundEffectsVolumeSliderChanged);
         SoundEffectsVolumeSlider->OnMouseCaptureEnd.AddDynamic(this, &USettingsUserWidget::OnSoundEffectsVolumeSliderReleased);
     }
+    InitializeSettings();
 }
 
 void USettingsUserWidget::InitializeSettings()
 {
-    ChangeScreenMode(ScreenModeIndex);
-    ChangeResolution(ResolutionIndex);
-    ChangeVsync(VsyncIndex);
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+    {
+        ChangeScreenMode(gameInstance->Settings->ScreenModeIndex);
+        ChangeResolution(gameInstance->Settings->ResolutionIndex);
+        ChangeVsync(gameInstance->Settings->VsyncIndex);
+        ChangeMusicVolume(gameInstance->Settings->MusicVolume);
+        ChangeSoundEffectVolume(gameInstance->Settings->SoundEffectVolume);
+    }
+}
+
+void USettingsUserWidget::ChangeMusicVolume(float value)
+{
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+    {
+        gameInstance->Settings->MusicVolume = value;
+        if (auto* MusicEngine = gameInstance->GetSubsystem<UMusicEngine>())
+        {
+            MusicEngine->SetMasterVolume(value);
+        }
+    }
+    if (MusicVolumeSlider)
+    {
+        MusicVolumeSlider->SetValue(value);
+    }
+    if (MusicVolumeText)
+    {
+        const auto text = FText::Format(FText::FromString(TEXT("{0}%")), FText::AsNumber(FMath::RoundToInt(value * 100.0f)));
+        MusicVolumeText->SetText(text);
+    }
+}
+
+void USettingsUserWidget::ChangeSoundEffectVolume(float value)
+{
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+    {
+        gameInstance->Settings->SoundEffectVolume = value;
+    }
+    if (MasterSoundClass)
+    {
+        MasterSoundClass->Properties.Volume = value;
+    }
+    if (SoundEffectsVolumeSlider)
+    {
+        SoundEffectsVolumeSlider->SetValue(value);
+    }
+    if (SoundEffectsVolumeText)
+    {
+        const auto text = FText::Format(FText::FromString(TEXT("{0}%")), FText::AsNumber(FMath::RoundToInt(value * 100.0f)));
+        SoundEffectsVolumeText->SetText(text);
+    }
 }
 
 void USettingsUserWidget::ChangeScreenMode(uint32 index)
 {
-    if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
+    if (auto* settings = GEngine->GetGameUserSettings())
     {
         EWindowMode::Type WindowMode = EWindowMode::WindowedFullscreen;
         switch (index)
@@ -71,35 +112,41 @@ void USettingsUserWidget::ChangeScreenMode(uint32 index)
         default:
             break;
         }
-        Settings->SetFullscreenMode(WindowMode);
-        Settings->ApplySettings(false);
-        Settings->SaveSettings();
+        settings->SetFullscreenMode(WindowMode);
+        settings->ApplySettings(false);
+        settings->SaveSettings();
+        if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+        {
+            UGameplayStatics::SaveGameToSlot(gameInstance->Settings, TEXT("Settings"), 0);
+            if (ScreenModeText)
+            {
+                ScreenModeText->SetText(FText::FromString(ScreenModeOptions[gameInstance->Settings->ScreenModeIndex]));
+            }
+        }
     }
 }
 
 void USettingsUserWidget::OnLeftScreenModeClicked()
 {
-    ScreenModeIndex = ScreenModeIndex == 0 ? ScreenModeOptions.size() - 1 : ScreenModeIndex - 1;
-    ChangeScreenMode(ScreenModeIndex);
-    if (ScreenModeText)
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
     {
-        ScreenModeText->SetText(FText::FromString(ScreenModeOptions[ScreenModeIndex]));
+        gameInstance->Settings->ScreenModeIndex = gameInstance->Settings->ScreenModeIndex == 0 ? ScreenModeOptions.size() - 1 : gameInstance->Settings->ScreenModeIndex - 1;
+        ChangeScreenMode(gameInstance->Settings->ScreenModeIndex);
     }
 }
 
 void USettingsUserWidget::OnRightScreenModeClicked()
 {
-    ScreenModeIndex = (ScreenModeIndex == ScreenModeOptions.size() - 1) ? 0 : ScreenModeIndex + 1;
-    ChangeScreenMode(ScreenModeIndex);
-    if (ScreenModeText)
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
     {
-        ScreenModeText->SetText(FText::FromString(ScreenModeOptions[ScreenModeIndex]));
+        gameInstance->Settings->ScreenModeIndex = (gameInstance->Settings->ScreenModeIndex == ScreenModeOptions.size() - 1) ? 0 : gameInstance->Settings->ScreenModeIndex + 1;
+        ChangeScreenMode(gameInstance->Settings->ScreenModeIndex);
     }
 }
 
 void USettingsUserWidget::ChangeResolution(uint32 index)
 {
-    if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
+    if (auto* settings = GEngine->GetGameUserSettings())
     {
         FIntPoint Resolution;
         switch (index)
@@ -119,87 +166,99 @@ void USettingsUserWidget::ChangeResolution(uint32 index)
         default:
             return;
         }
-        Settings->SetScreenResolution(Resolution);
-        Settings->ApplySettings(false);
-        Settings->SaveSettings();
+        settings->SetScreenResolution(Resolution);
+        settings->ApplySettings(false);
+        settings->SaveSettings();
+        if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+        {
+            UGameplayStatics::SaveGameToSlot(gameInstance->Settings, TEXT("Settings"), 0);
+            if (ResolutionText)
+            {
+                ResolutionText->SetText(FText::FromString(ResolutionOptions[gameInstance->Settings->ResolutionIndex]));
+            }
+        }
     }
 }
 
 void USettingsUserWidget::OnLeftResolutionClicked()
 {
-    ResolutionIndex = ResolutionIndex == 0 ? ResolutionOptions.size() - 1 : ResolutionIndex - 1;
-    ChangeResolution(ResolutionIndex);
-    if (ResolutionText)
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
     {
-        ResolutionText->SetText(FText::FromString(ResolutionOptions[ResolutionIndex]));
+        gameInstance->Settings->ResolutionIndex = gameInstance->Settings->ResolutionIndex == 0 ? ResolutionOptions.size() - 1 : gameInstance->Settings->ResolutionIndex - 1;
+        ChangeResolution(gameInstance->Settings->ResolutionIndex);
     }
 }
 
 void USettingsUserWidget::OnRightResolutionClicked()
 {
-    ResolutionIndex = ResolutionIndex == (ResolutionOptions.size() - 1) ? 0 : ResolutionIndex + 1;
-    ChangeResolution(ResolutionIndex);
-    if (ResolutionText)
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
     {
-        ResolutionText->SetText(FText::FromString(ResolutionOptions[ResolutionIndex]));
+        gameInstance->Settings->ResolutionIndex = gameInstance->Settings->ResolutionIndex == (ResolutionOptions.size() - 1) ? 0 : gameInstance->Settings->ResolutionIndex + 1;
+        ChangeResolution(gameInstance->Settings->ResolutionIndex);
     }
 }
 
 void USettingsUserWidget::ChangeVsync(uint32 index)
 {
     const bool value = (index == 0);
-    if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
+    if (auto* settings = GEngine->GetGameUserSettings())
     {
-        Settings->SetVSyncEnabled(value);
-        Settings->ApplySettings(false);
-        Settings->SaveSettings();
+        settings->SetVSyncEnabled(value);
+        settings->ApplySettings(false);
+        settings->SaveSettings();
+        if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+        {
+            UGameplayStatics::SaveGameToSlot(gameInstance->Settings, TEXT("Settings"), 0);
+            if (VsyncText)
+            {
+                VsyncText->SetText(FText::FromString(VsyncOptions[gameInstance->Settings->VsyncIndex]));
+            }
+        }
     }
 }
 
 void USettingsUserWidget::OnLeftVsyncClicked()
 {
-    VsyncIndex = VsyncIndex == 0 ? VsyncOptions.size() - 1 : VsyncIndex - 1;
-    ChangeVsync(VsyncIndex);
-    if (VsyncText)
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
     {
-        VsyncText->SetText(FText::FromString(VsyncOptions[VsyncIndex]));
+        gameInstance->Settings->VsyncIndex = gameInstance->Settings->VsyncIndex == 0 ? VsyncOptions.size() - 1 : gameInstance->Settings->VsyncIndex - 1;
+        ChangeVsync(gameInstance->Settings->VsyncIndex);
     }
 }
 
 void USettingsUserWidget::OnRightVsyncClicked()
 {
-    VsyncIndex = (VsyncIndex == VsyncOptions.size() - 1) ? 0 : VsyncIndex + 1;
-    ChangeVsync(VsyncIndex);
-    if (VsyncText)
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
     {
-        VsyncText->SetText(FText::FromString(VsyncOptions[VsyncIndex]));
+        gameInstance->Settings->VsyncIndex = (gameInstance->Settings->VsyncIndex == VsyncOptions.size() - 1) ? 0 : gameInstance->Settings->VsyncIndex + 1;
+        ChangeVsync(gameInstance->Settings->VsyncIndex);
     }
 }
 
 void USettingsUserWidget::OnMusicVolumeSliderChanged(float value)
 {
-    auto text = FText::AsNumber(FMath::RoundToInt(value));
-    MusicVolumeText->SetText(text);
-    UMusicEngine* musicEngine = GetGameInstance()->GetSubsystem<UMusicEngine>();
-    musicEngine->SetMasterVolume(value / 10.0f);
+    ChangeMusicVolume(value);
 }
 
 void USettingsUserWidget::OnMusicVolumeSliderReleased()
 {
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+    {
+        UGameplayStatics::SaveGameToSlot(gameInstance->Settings, TEXT("Settings"), 0);
+    }
 }
 
 void USettingsUserWidget::OnSoundEffectsVolumeSliderChanged(float value)
 {
-    auto text = FText::AsNumber(FMath::RoundToInt(value));
-    SoundEffectsVolumeText->SetText(text);
-    if (MasterSoundClass)
-    {
-        MasterSoundClass->Properties.Volume = value / 10.0f;
-    }
+    ChangeSoundEffectVolume(value);
 }
 
 void USettingsUserWidget::OnSoundEffectsVolumeSliderReleased()
 {
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+    {
+        UGameplayStatics::SaveGameToSlot(gameInstance->Settings, TEXT("Settings"), 0);
+    }
     if (TestSound)
     {
         UGameplayStatics::PlaySound2D(this, TestSound);

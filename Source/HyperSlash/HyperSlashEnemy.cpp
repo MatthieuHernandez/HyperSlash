@@ -45,11 +45,21 @@ AHyperSlashEnemy::AHyperSlashEnemy()
 void AHyperSlashEnemy::BeginPlay()
 {
     Super::BeginPlay();
+    if (auto* Player = UGameplayStatics::GetPlayerPawn(this, 0))
+    {
+        FVector Direction = Player->GetActorLocation() - GetActorLocation();
+        Direction.Z = 0.0f;
+        SetActorRotation(Direction.Rotation());
+    }
     if (AHyperSlashGameMode* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
     {
         GM->IncreaseEnemyCount();
     }
     GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AHyperSlashEnemy::OnHit);
+    if (DigUpDirt)
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DigUpDirt, GetActorLocation());
+    }
 }
 
 void AHyperSlashEnemy::EndPlay(EEndPlayReason::Type EndPlayReason)

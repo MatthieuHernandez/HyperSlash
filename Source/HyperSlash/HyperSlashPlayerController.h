@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
 #include "HyperSlashPlayerController.generated.h"
 
@@ -13,73 +12,81 @@ class AHyperSlashCharacter;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-/**
- *  Player controller for a top-down perspective game.
- *  Implements point and click based controls
- */
+
 UCLASS(abstract)
 class AHyperSlashPlayerController : public APlayerController
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 protected:
 
-	/** Component used for moving along a NavMesh path. */
-	UPROPERTY(VisibleDefaultsOnly, Category = AI)
-	TObjectPtr<UPathFollowingComponent> PathFollowingComponent;
+    /** Component used for moving along a NavMesh path. */
+    UPROPERTY(VisibleDefaultsOnly, Category = AI)
+    TObjectPtr<UPathFollowingComponent> PathFollowingComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction> SetAttackInputAction;
+    UPROPERTY(EditAnywhere, Category = "Input")
+    TObjectPtr<UInputAction> SetCircularAttackInputAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction> SetDashAttackInputAction;
+    UPROPERTY(EditAnywhere, Category = "Input")
+    TObjectPtr<UInputAction> SetDashAttackInputAction;
 
-	/** Time Threshold to know if it was a short press */
-	UPROPERTY(EditAnywhere, Category="Input")
-	float ShortPressThreshold;
+    /** Time Threshold to know if it was a short press */
+    UPROPERTY(EditAnywhere, Category="Input")
+    float ShortPressThreshold;
 
-	/** FX Class that we will spawn when clicking */
-	UPROPERTY(EditAnywhere, Category="Input")
-	TObjectPtr<UNiagaraSystem> FXCursor;
+    /** FX Class that we will spawn when clicking */
+    UPROPERTY(EditAnywhere, Category="Input")
+    TObjectPtr<UNiagaraSystem> FXCursor;
 
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, Category="Input")
-	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+    /** MappingContext */
+    UPROPERTY(EditAnywhere, Category="Input")
+    TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
-	/** True if the controlled character should navigate to the mouse cursor. */
-	uint32 bMoveToMouseCursor : 1;
+    UPROPERTY(EditAnywhere, Category = "Input", meta = (Units = "s"))
+    float InputBufferDuration;
 
-	/** Set to true if we're using touch input */
-	uint32 bIsTouch : 1;
 
-	/** Saved location of the character movement destination */
-	FVector CachedDestination;
+    UPROPERTY(EditAnywhere, Category = "Distance")
+    float DistanceMinBeforeMoving;
 
-	/** Time that the click input has been pressed */
-	float FollowTime = 0.0f;
+    UPROPERTY(EditAnywhere, Category = "Distance")
+    float DistanceMinBeforeTeleportation;
+
+    /** True if the controlled character should navigate to the mouse cursor. */
+    uint32 bMoveToMouseCursor : 1;
+
+    /** Set to true if we're using touch input */
+    uint32 bIsTouch : 1;
+
+    /** Saved location of the character movement destination */
+    FVector CachedDestination;
+
+    /** Time that the click input has been pressed */
+    float FollowTime = 0.0f;
 
 public:
 
-	/** Constructor */
-	AHyperSlashPlayerController();
+    AHyperSlashPlayerController();
 
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
 
-	virtual void Tick(float DeltaSeconds) override;
+    virtual void Tick(float DeltaSeconds) override;
+
+    void TeleportPlayer();
 
 protected:
 
-	/** Initialize input bindings */
-	virtual void SetupInputComponent() override;
+    /** Initialize input bindings */
+    virtual void SetupInputComponent() override;
 
-	void OrientPlayer(AHyperSlashCharacter* Charactere);
-	
-	/** Helper function to get the move destination */
-	void UpdateCachedDestination();
+    void OrientPlayer(AHyperSlashCharacter* Charactere);
+    
+    /** Helper function to get the move destination */
+    void UpdateCachedDestination();
 
-	void OnAttack();
+    void OnCircularAttack();
 
-	void OnDashAttack();
+    void OnDashAttack();
+
+    void OnTeleportation();
 };
-
-

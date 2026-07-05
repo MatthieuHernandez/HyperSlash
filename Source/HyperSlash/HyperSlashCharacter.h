@@ -6,6 +6,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UAnimMontage;
 class AWeapon;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScoreChanged, int32, score, int32, scoreMultiplier);
@@ -20,9 +21,14 @@ private:
     bool canAct = true;
     bool isDashing = false;
     bool isAttacking = false;
+    bool isTeleporting = false;
+
+
+    void UpdateScoreStartAttack();
+    void UpdateScoreEndAttack();
 
     UFUNCTION()
-    void EndAttack();
+    void EndCircularAttack();
 
     UFUNCTION()
     void EndDashAttack();
@@ -35,15 +41,15 @@ private:
     /** The score is only going up.*/
     int32 score;
 
-    FTimerHandle hitTimer;
-    FTimerHandle actTimer;
-    FTimerHandle dieTimer;
-    FTimerHandle dashTimer;
-
     FVector dashAttackVector;
 
-    void PlayAttackAnimation();
+    void PlayCircularAttackAnimation();
     void PlayDashAttackAnimation();
+    void PlayTeleportationAnimation();
+
+    void PerformCircularAttack();
+    void PerformDashAttack();
+    void PerformTeleportation();
 
     AWeapon* equippedWeapon;
 
@@ -61,10 +67,13 @@ protected:
     TSubclassOf<AWeapon> WeaponClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-    UAnimSequence* AttackAnimation;
+    UAnimMontage* CircularAttackAnimation;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* DashAttackAnimation;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimMontage* TeleportationAnimation;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* HitFrontAnnimation;
@@ -77,6 +86,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* HitRightAnnimation;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sound")
+    TObjectPtr<USoundBase> SlashSound;
 
 public:
 
@@ -92,15 +104,7 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Score")
     FOnScoreChanged OnScoreChanged;
 
-    UFUNCTION()
-    void PerformAttack();
-
-    UFUNCTION()
-    void PerformDashAttack();
-
     void BeHit(Direction D);
-
-    void Attack();
 
     void EnemyKilled();
 
@@ -108,4 +112,8 @@ public:
     void Die();
 
     bool CanAct() const;
+
+    bool WantPerformCircularAttack;
+    bool WantPerformDashAttack;
+    bool WantPerformTeleportation;
 };

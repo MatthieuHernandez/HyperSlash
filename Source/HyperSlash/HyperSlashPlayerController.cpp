@@ -23,7 +23,11 @@ AHyperSlashPlayerController::AHyperSlashPlayerController()
     // configure the controller
     DefaultMouseCursor = EMouseCursor::Default;
     CachedDestination = FVector::ZeroVector;
-    FollowTime = 0.f;
+    FollowTime = 0.0f;
+
+    InputBufferDuration = 0.1f;
+    DistanceMinBeforeMoving = 200.0f;
+    DistanceMinBeforeTeleportation = 2000.0f;
 }
 
 void AHyperSlashPlayerController::BeginPlay()
@@ -46,26 +50,26 @@ void AHyperSlashPlayerController::Tick(float DeltaSeconds)
     // Update the move destination to wherever the cursor is pointing at
     UpdateCachedDestination();
 
-    // Move towards mouse pointer
-    auto* player = Cast<AHyperSlashCharacter>(GetPawn());
-    if (!Player || !player->CanAct())
+    if (auto* player = Cast<AHyperSlashCharacter>(GetPawn()))
     {
-        return;
-    }
-
-    if (UAnimInstance* Anim = player->GetMesh()->GetAnimInstance())
-    {
-        if (Anim->IsAnyMontagePlaying())
+        FVector Delta = CachedDestination - player->GetActorLocation();
+        if (Delta.Size() >= DistanceMinBeforeTeleportation)
         {
-            return;
+            OnTeleportation();
+        }
+        else if (Delta.Size() >= DistanceMinBeforeMoving)
+        {
+            FVector WorldDirection = Delta.GetSafeNormal();
+            player->AddMovementInput(WorldDirection, 1.0, false);
         }
     }
+}
 
-    FVector Delta = CachedDestination - player->GetActorLocation();
-    if (Delta.Size() > 100.0f)
+void AHyperSlashPlayerController::TeleportPlayer()
+{
+    if (auto* player = Cast<AHyperSlashCharacter>(GetPawn()))
     {
-        FVector WorldDirection = Delta.GetSafeNormal();
-        player->AddMovementInput(WorldDirection, 1.0, false);
+        player->TeleportTo(CachedDestination, player->GetActorRotation());
     }
 }
 
@@ -78,13 +82,13 @@ void AHyperSlashPlayerController::SetupInputComponent()
     if (IsLocalPlayerController())
     {
         // Add Input Mapping Context
-        if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+        if (auto* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
         {
             Subsystem->AddMappingContext(DefaultMappingContext, 0);
         }
-        if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+        if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
         {
-            EnhancedInputComponent->BindAction(SetAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnAttack);
+            EnhancedInputComponent->BindAction(SetCircularAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnCircularAttack);
             EnhancedInputComponent->BindAction(SetDashAttackInputAction, ETriggerEvent::Started, this, &AHyperSlashPlayerController::OnDashAttack);
         }
     }
@@ -98,21 +102,36 @@ void AHyperSlashPlayerController::OrientPlayer(AHyperSlashCharacter* Charactere)
     Charactere->SetActorRotation(Direction.Rotation());
 }
 
-void AHyperSlashPlayerController::OnAttack()
+void AHyperSlashPlayerController::OnCircularAttack()
 {
-    AHyperSlashCharacter* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
-    if (Charactere && Charactere->CanAct()) {
-        OrientPlayer(Charactere);
-        Charactere->PerformAttack();
+    auto* character = Cast<AHyperSlashCharacter>(GetPawn());
+    if (character) {
+        OrientPlayer(character);
+        character->WantPerformCircularAttack = true;
+        FTimerHandle timer;
+        GetWorldTimerManager().SetTimer(timer, [character]() { character->WantPerformCircularAttack = false; }, InputBufferDuration, false);
     }
 }
 
 void AHyperSlashPlayerController::OnDashAttack()
 {
-    AHyperSlashCharacter* Charactere = Cast<AHyperSlashCharacter>(GetPawn());
-    if (Charactere && Charactere->CanAct()) {
-        OrientPlayer(Charactere);
-        Charactere->PerformDashAttack();
+    auto* character = Cast<AHyperSlashCharacter>(GetPawn());
+    if (character) {
+        OrientPlayer(character);
+        character->WantPerformDashAttack = true;
+        FTimerHandle timer;
+        GetWorldTimerManager().SetTimer(timer, [character]() { character->WantPerformDashAttack = false; }, InputBufferDuration, false);
+    }
+}
+
+void AHyperSlashPlayerController::OnTeleportation()
+{
+    auto* character = Cast<AHyperSlashCharacter>(GetPawn());
+    if (character && character->CanAct()) {
+        OrientPlayer(character);
+        character->WantPerformTeleportation = true;
+        FTimerHandle timer;
+        GetWorldTimerManager().SetTimer(timer, [character]() { character->WantPerformTeleportation = false; }, InputBufferDuration, false);
     }
 }
 
