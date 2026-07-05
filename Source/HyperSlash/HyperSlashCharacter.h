@@ -21,6 +21,7 @@ private:
     bool canAct = true;
     bool isDashing = false;
     bool isAttacking = false;
+    bool isTeleporting = false;
 
 
     void UpdateScoreStartAttack();
@@ -40,16 +41,15 @@ private:
     /** The score is only going up.*/
     int32 score;
 
-    FTimerHandle hitTimer;
-    FTimerHandle actTimer;
-    FTimerHandle dieTimer;
-    FTimerHandle dashTimer;
-
     FVector dashAttackVector;
 
     void PlayCircularAttackAnimation();
     void PlayDashAttackAnimation();
     void PlayTeleportationAnimation();
+
+    void PerformCircularAttack();
+    void PerformDashAttack();
+    void PerformTeleportation();
 
     AWeapon* equippedWeapon;
 
@@ -87,6 +87,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
     UAnimSequence* HitRightAnnimation;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sound")
+    TObjectPtr<USoundBase> SlashSound;
+
 public:
 
     /** Constructor */
@@ -101,15 +104,6 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Score")
     FOnScoreChanged OnScoreChanged;
 
-    UFUNCTION()
-    void PerformCircularAttack();
-
-    UFUNCTION()
-    void PerformDashAttack();
-
-    UFUNCTION()
-    void PerformTeleportation();
-
     void BeHit(Direction D);
 
     void EnemyKilled();
@@ -118,4 +112,8 @@ public:
     void Die();
 
     bool CanAct() const;
+
+    bool WantPerformCircularAttack;
+    bool WantPerformDashAttack;
+    bool WantPerformTeleportation;
 };

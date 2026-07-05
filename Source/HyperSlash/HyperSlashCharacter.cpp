@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -76,6 +77,24 @@ void AHyperSlashCharacter::Tick(float DeltaSeconds)
     {
         AddActorWorldOffset(dashAttackVector * DeltaSeconds, true);
     }
+    if (CanAct())
+    {
+        if (WantPerformTeleportation)
+        {
+            PerformTeleportation();
+            WantPerformTeleportation = false;
+        }
+        else if (WantPerformCircularAttack)
+        {
+            PerformCircularAttack();
+            WantPerformCircularAttack = false;
+        }
+        else if (WantPerformDashAttack)
+        {
+            PerformDashAttack();
+            WantPerformDashAttack = false;
+        }
+    }
 }
 
 void AHyperSlashCharacter::PlayCircularAttackAnimation()
@@ -83,6 +102,10 @@ void AHyperSlashCharacter::PlayCircularAttackAnimation()
     if (auto* animInstance = GetMesh()->GetAnimInstance())
     {
         animInstance->Montage_Play(CircularAttackAnimation);
+    }
+    if (SlashSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, SlashSound, GetActorLocation(), 1.0f, 1.0f, 0.0f);
     }
 }
 
@@ -117,7 +140,8 @@ void AHyperSlashCharacter::PerformCircularAttack()
     const float attackDuration = CircularAttackAnimation->GetSectionLength(0);
     isAttacking = true;
     equippedWeapon->EnableHitbox();
-    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndCircularAttack, attackDuration, false);
+    FTimerHandle timer;
+    GetWorldTimerManager().SetTimer(timer, this, &AHyperSlashCharacter::EndCircularAttack, attackDuration, false);
 }
 
 void AHyperSlashCharacter::PerformDashAttack()
@@ -134,12 +158,17 @@ void AHyperSlashCharacter::PerformDashAttack()
 
     isDashing = true;
     equippedWeapon->EnableHitbox();
-    GetWorldTimerManager().SetTimer(dashTimer, this, &AHyperSlashCharacter::EndDashAttack, dashDuration, false);
+    FTimerHandle timer;
+    GetWorldTimerManager().SetTimer(timer, this, &AHyperSlashCharacter::EndDashAttack, dashDuration, false);
 }
 
 void AHyperSlashCharacter::PerformTeleportation()
 {
     PlayTeleportationAnimation();
+    const float teleportationDuration = TeleportationAnimation->GetSectionLength(0);
+    isTeleporting = true;
+    FTimerHandle timer;
+    GetWorldTimerManager().SetTimer(timer, [this]() { isTeleporting = false; }, teleportationDuration, false);
 }
 
 void AHyperSlashCharacter::EndDashAttack()
@@ -184,7 +213,9 @@ void AHyperSlashCharacter::BeHit(Direction D)
             AnimInstance->PlaySlotAnimationAsDynamicMontage(AnimSeq, FName("DefaultSlot"));
         }
     }
+    FTimerHandle actTimer;
     GetWorldTimerManager().SetTimer(actTimer, [this]() {canAct = true; }, 1.0f, false);
+    FTimerHandle hitTimer;
     GetWorldTimerManager().SetTimer(hitTimer, [this]() {canBeHit = true; }, 1.6f, false);
 }
 
@@ -207,7 +238,7 @@ void AHyperSlashCharacter::UpdateScoreEndAttack()
 void AHyperSlashCharacter::EnemyKilled()
 {
     numberOfEnemyKilledByPreviousAttack++;
-    score += numberOfEnemyKilledByPreviousAttack * scoreMultiplier;
+    score += (numberOfEnemyKilledByPreviousAttack + 1) * scoreMultiplier;
     OnScoreChanged.Broadcast(score, scoreMultiplier);
 }
 
@@ -215,11 +246,12 @@ void AHyperSlashCharacter::Die()
 {
     if (auto* GM = Cast<AHyperSlashGameMode>(GetWorld()->GetAuthGameMode()))
     {
-        GetWorldTimerManager().SetTimer(dieTimer, GM, &AHyperSlashGameMode::GameOver, 1.2f, false);
+        FTimerHandle timer;
+        GetWorldTimerManager().SetTimer(timer, GM, &AHyperSlashGameMode::GameOver, 1.2f, false);
     }
 }
 
 bool AHyperSlashCharacter::CanAct() const
 {
-    return canAct && !isDashing && !isAttacking;
+    return canAct && !isDashing && !isAttacking && !isTeleporting;
 }

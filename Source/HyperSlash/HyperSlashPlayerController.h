@@ -42,6 +42,10 @@ protected:
     UPROPERTY(EditAnywhere, Category="Input")
     TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
+    UPROPERTY(EditAnywhere, Category = "Input", meta = (Units = "s"))
+    float InputBufferDuration;
+
+
     UPROPERTY(EditAnywhere, Category = "Distance")
     float DistanceMinBeforeMoving;
 
@@ -86,5 +90,3 @@ protected:
 
     void OnTeleportation();
 };
-
-
