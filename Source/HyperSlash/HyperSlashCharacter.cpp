@@ -62,7 +62,10 @@ void AHyperSlashCharacter::BeginPlay()
     }
     if (WeaponClass)
     {
-        equippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator);
+        FActorSpawnParameters spawnParams;
+        spawnParams.Owner = this;
+        spawnParams.Instigator = this;
+        equippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, spawnParams);
         if (equippedWeapon)
         {
             equippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("hand_socket_r"));

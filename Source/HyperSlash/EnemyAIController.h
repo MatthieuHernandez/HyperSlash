@@ -10,11 +10,6 @@ UCLASS(abstract)
 class HYPERSLASH_API AEnemyAIController : public AAIController
 {
     GENERATED_BODY()
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-    UStateTreeAIComponent* StateTreeAI;
-
 public:
-
     AEnemyAIController();
 };

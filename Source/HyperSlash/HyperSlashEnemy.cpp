@@ -17,6 +17,7 @@
 AHyperSlashEnemy::AHyperSlashEnemy()
 {
     PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bStartWithTickEnabled = true;
 
     // ensure we spawn an AI controller when we're spawned
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -68,10 +69,6 @@ void AHyperSlashEnemy::EndPlay(EEndPlayReason::Type EndPlayReason)
     GetWorld()->GetTimerManager().ClearTimer(DestructionTimer);
     if (auto* AI = Cast<AAIController>(GetController()))
     {
-        if (auto* Brain = AI->GetBrainComponent())
-        {
-            Brain->StopLogic(TEXT("Enemy destroyed"));
-        }
         AI->StopMovement();
     }
     Super::EndPlay(EndPlayReason);
@@ -86,6 +83,21 @@ void AHyperSlashEnemy::Destroyed()
     Super::Destroyed();
 }
 
+void AHyperSlashEnemy::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    if (CanAct())
+    {
+        if (AAIController* AI = Cast<AAIController>(GetController()))
+        {
+            if (auto* player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+            {
+                AI->MoveToActor(player, 50.0f);
+            }
+        }
+    }
+}
+
 void AHyperSlashEnemy::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
     // have we collided against the player?
@@ -96,20 +108,25 @@ void AHyperSlashEnemy::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Othe
     }
 }
 
-void AHyperSlashEnemy::ProjectileImpact(const FVector& ForwardVector)
+void AHyperSlashEnemy::GetHit(const FVector& Knockback)
 {
-    // only handle damage if we haven't been hit yet
-    if (bHit)
+    if (!wasHitRecently)
     {
-        return;
+        LaunchCharacter(Knockback * 1000.0f, true, false);
+        Health--;
+        if (Health <= 0)
+        {
+            Die();
+        }
+        wasHitRecently = true;
+        FTimerHandle timer;
+        GetWorldTimerManager().SetTimer(timer, [this]() { wasHitRecently = false; }, 0.4f, false);
     }
+}
 
-    // raise the hit flag
-    bHit = true;
-
-    // deactivate character movement
+void AHyperSlashEnemy::Die()
+{
     GetCharacterMovement()->Deactivate();
-
     if (DeathSound)
     {
         UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
@@ -121,15 +138,9 @@ void AHyperSlashEnemy::ProjectileImpact(const FVector& ForwardVector)
         UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSpurt, GetActorLocation(), EffectRotation);
     }
 
-    // hide this actor
     SetActorHiddenInGame(true);
-
-    // disable collision
     SetActorEnableCollision(false);
-
-    // defer destruction
     GetWorld()->GetTimerManager().SetTimer(DestructionTimer, this, &AHyperSlashEnemy::DeferredDestroy, DeferredDestructionTime, false);
-
 
     // Notify the player
     if (auto* Player = Cast<AHyperSlashCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
@@ -138,20 +149,8 @@ void AHyperSlashEnemy::ProjectileImpact(const FVector& ForwardVector)
     }
 }
 
-void AHyperSlashEnemy::StopStateTreeLogic()
-{
-    if (AAIController* AIController = Cast<AAIController>(GetController()))
-    {
-        if (UStateTreeAIComponent* StateTreeComponent = AIController->FindComponentByClass<UStateTreeAIComponent>())
-        {
-            StateTreeComponent->StopLogic(TEXT("Enemy destroyed"));
-        }
-    }
-}
-
 void AHyperSlashEnemy::DeferredDestroy()
 {
-    StopStateTreeLogic();
     Destroy();
 }
 
@@ -176,17 +175,17 @@ Direction AHyperSlashEnemy::GetHitDirection(AHyperSlashCharacter* Player)
     }
 }
 
-void AHyperSlashEnemy::OnHit(
-    UPrimitiveComponent* HitComponent,
-    AActor* OtherActor,
-    UPrimitiveComponent* OtherComp,
-    FVector NormalImpulse,
-    const FHitResult& Hit)
+void AHyperSlashEnemy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    auto* Player = Cast<AHyperSlashCharacter>(OtherActor);
-    if (Player)
+    auto* player = Cast<AHyperSlashCharacter>(OtherActor);
+    if (player)
     {
-        Direction Dir = GetHitDirection(Player);
-        Player->BeHit(Dir);
+        auto direction = GetHitDirection(player);
+        player->BeHit(direction);
     }
+}
+
+bool AHyperSlashEnemy::CanAct() const
+{
+    return canAct && !wasHitRecently;
 }

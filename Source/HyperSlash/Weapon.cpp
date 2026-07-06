@@ -27,7 +27,9 @@ void AWeapon::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor
 {
     if (AHyperSlashEnemy* Enemy = Cast<AHyperSlashEnemy>(OtherActor))
     {
-        Enemy->ProjectileImpact(FVector::ZeroVector);
+        auto knockback = (Enemy->GetActorLocation() - GetOwner()->GetActorLocation()).GetSafeNormal();
+        knockback.Z = 0.0f;
+        Enemy->GetHit(knockback);
     }
 }
 

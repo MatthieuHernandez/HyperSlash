@@ -15,10 +15,14 @@ class AHyperSlashEnemy : public ACharacter
 {
     GENERATED_BODY()
 private:
-    void PlaySpawnAnimation();
+    bool canAct = true;
+    bool wasHitRecently = false;
+    void Die();
 
 protected:
-    /** Time to wait after this NPC is hit before destroying it */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+    int32 Health = 1;
+
     UPROPERTY(EditAnywhere, Category = "Death", meta = (ClampMin = 0, ClampMax = 5, Units = "s"))
     float DeferredDestructionTime = 0.1f;
 
@@ -34,19 +38,16 @@ protected:
     /** Deferred destruction timer */
     FTimerHandle DestructionTimer;
 
-    /** Gameplay Initialization */
     virtual void BeginPlay() override;
 
-    /** Gameplay cleanup */
     virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
-    /** Handle destruction */
     virtual void Destroyed() override;
+
+    virtual void Tick(float DeltaSeconds) override;
 
     /** Collision handling */
     virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
-
-    void StopStateTreeLogic();
 
     /** Called from timer to complete the destruction process for this NPC */
     void DeferredDestroy();
@@ -72,6 +73,7 @@ public:
     // Sets default values for this character's properties
     AHyperSlashEnemy();
 
-    /** Tells the NPC to process a projectile impact */
-    void ProjectileImpact(const FVector& ForwardVector);
+    void GetHit(const FVector& Knockback);
+
+    bool CanAct() const;
 };
