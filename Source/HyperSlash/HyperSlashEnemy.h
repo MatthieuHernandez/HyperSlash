@@ -9,6 +9,7 @@ class AActor;
 class AHyperSlashCharacter;
 class USoundBase;
 class UNiagaraSystem;
+class AWeapon;
 
 UCLASS(abstract)
 class AHyperSlashEnemy : public ACharacter
@@ -17,11 +18,24 @@ class AHyperSlashEnemy : public ACharacter
 private:
     bool canAct = true;
     bool wasHitRecently = false;
+    bool isAttacking = false;
+
+    AWeapon* equippedWeapon;
+
     void Die();
+
+    void PerformAttack();
+
+    UFUNCTION()
+    void EndAttack();
+
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
     int32 Health = 1;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    TSubclassOf<AWeapon> WeaponClass;
 
     UPROPERTY(EditAnywhere, Category = "Death", meta = (ClampMin = 0, ClampMax = 5, Units = "s"))
     float DeferredDestructionTime = 0.1f;
@@ -35,6 +49,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawn")
     TObjectPtr<UNiagaraSystem> DigUpDirt;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+    UAnimSequence* AttackAnimation;
+
     /** Deferred destruction timer */
     FTimerHandle DestructionTimer;
 
@@ -45,9 +62,6 @@ protected:
     virtual void Destroyed() override;
 
     virtual void Tick(float DeltaSeconds) override;
-
-    /** Collision handling */
-    virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
     /** Called from timer to complete the destruction process for this NPC */
     void DeferredDestroy();

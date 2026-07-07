@@ -12,6 +12,7 @@
 #include "Sound/SoundBase.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Weapon.h"
 
 // Sets default values
 AHyperSlashEnemy::AHyperSlashEnemy()
@@ -56,10 +57,20 @@ void AHyperSlashEnemy::BeginPlay()
     {
         GM->IncreaseEnemyCount();
     }
-    GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AHyperSlashEnemy::OnHit);
     if (DigUpDirt)
     {
         UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DigUpDirt, GetActorLocation());
+    }
+    if (WeaponClass)
+    {
+        FActorSpawnParameters spawnParams;
+        spawnParams.Owner = this;
+        spawnParams.Instigator = this;
+        equippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, spawnParams);
+        if (equippedWeapon)
+        {
+            equippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("hand_socket_r"));
+        }
     }
 }
 
@@ -88,23 +99,18 @@ void AHyperSlashEnemy::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
     if (CanAct())
     {
-        if (AAIController* AI = Cast<AAIController>(GetController()))
+        if (auto* player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
         {
-            if (auto* player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+            if (AAIController* AI = Cast<AAIController>(GetController()))
             {
                 AI->MoveToActor(player, 50.0f);
             }
+            const auto distance = FVector::Dist(GetActorLocation(), player->GetActorLocation());
+            if (distance <= 120.0f)
+            {
+                PerformAttack();
+            }
         }
-    }
-}
-
-void AHyperSlashEnemy::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
-{
-    // have we collided against the player?
-    if (AHyperSlashCharacter* PlayerCharacter = Cast<AHyperSlashCharacter>(Other))
-    {
-        // apply damage to the character
-        // PlayerCharacter->HandleDamage(1.0f, GetActorForwardVector());
     }
 }
 
@@ -121,23 +127,22 @@ void AHyperSlashEnemy::GetHit(const FVector& Knockback)
         wasHitRecently = true;
         FTimerHandle timer;
         GetWorldTimerManager().SetTimer(timer, [this]() { wasHitRecently = false; }, 0.4f, false);
+        if (DeathSound)
+        {
+            UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+        }
+        if (BloodSpurt)
+        {
+            auto EffectRotation = GetActorRotation();
+            EffectRotation.Yaw += 180.0f;
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSpurt, GetActorLocation(), EffectRotation);
+        }
     }
 }
 
 void AHyperSlashEnemy::Die()
 {
     GetCharacterMovement()->Deactivate();
-    if (DeathSound)
-    {
-        UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
-    }
-    if (BloodSpurt)
-    {
-        auto EffectRotation = GetActorRotation();
-        EffectRotation.Yaw += 180.0f;
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSpurt, GetActorLocation(), EffectRotation);
-    }
-
     SetActorHiddenInGame(true);
     SetActorEnableCollision(false);
     GetWorld()->GetTimerManager().SetTimer(DestructionTimer, this, &AHyperSlashEnemy::DeferredDestroy, DeferredDestructionTime, false);
@@ -146,6 +151,34 @@ void AHyperSlashEnemy::Die()
     if (auto* Player = Cast<AHyperSlashCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
     {
         Player->EnemyKilled();
+    }
+    equippedWeapon->DisableHitbox();
+    equippedWeapon->Destroy();
+}
+
+void AHyperSlashEnemy::PerformAttack()
+{
+    if (!AttackAnimation) return;
+
+    isAttacking = true;
+    if (equippedWeapon)
+    {
+        equippedWeapon->EnableHitbox();
+    }
+    if (auto* animInstance = GetMesh()->GetAnimInstance())
+    {
+        animInstance->PlaySlotAnimationAsDynamicMontage(AttackAnimation, FName("DefaultSlot"), 0.0f, 0.0f);
+    }
+    FTimerHandle timer;
+    GetWorldTimerManager().SetTimer(timer, this, &AHyperSlashEnemy::EndAttack, AttackAnimation->GetPlayLength(), false);
+}
+
+void AHyperSlashEnemy::EndAttack()
+{
+    isAttacking = false;
+    if (equippedWeapon)
+    {
+        equippedWeapon->DisableHitbox();
     }
 }
 
@@ -177,6 +210,7 @@ Direction AHyperSlashEnemy::GetHitDirection(AHyperSlashCharacter* Player)
 
 void AHyperSlashEnemy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+    if (!isAttacking) return;
     auto* player = Cast<AHyperSlashCharacter>(OtherActor);
     if (player)
     {
@@ -187,5 +221,5 @@ void AHyperSlashEnemy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 
 bool AHyperSlashEnemy::CanAct() const
 {
-    return canAct && !wasHitRecently;
+    return canAct && !wasHitRecently && !isAttacking;
 }
