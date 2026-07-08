@@ -1,6 +1,7 @@
 #include "HyperSlashEnemy.h"
 #include "HyperSlashGameMode.h"
 #include "HyperSlashCharacter.h"
+#include "HyperSlashGameInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StateTreeAIComponent.h"
@@ -72,6 +73,14 @@ void AHyperSlashEnemy::BeginPlay()
             equippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("hand_socket_r"));
         }
     }
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+    {
+        if(gameInstance->Settings->Modes.EnableGlassEnemies)
+        {
+            MaxHealth = 1;
+        }
+    }
+    health = MaxHealth;
 }
 
 void AHyperSlashEnemy::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -108,7 +117,8 @@ void AHyperSlashEnemy::Tick(float DeltaSeconds)
             const auto distance = FVector::Dist(GetActorLocation(), player->GetActorLocation());
             if (distance <= 120.0f)
             {
-                PerformAttack();
+                FTimerHandle timer;
+                GetWorldTimerManager().SetTimer(timer, this, &AHyperSlashEnemy::PerformAttack, 0.35f, false);
             }
         }
     }
@@ -118,9 +128,13 @@ void AHyperSlashEnemy::GetHit(const FVector& Knockback)
 {
     if (!wasHitRecently)
     {
-        LaunchCharacter(Knockback * 1000.0f, true, false);
-        Health--;
-        if (Health <= 0)
+        if (auto* AI = Cast<AAIController>(GetController()))
+        {
+            AI->StopMovement();
+        }
+        LaunchCharacter(Knockback * 1350.0f, true, false);
+        health--;
+        if (health <= 0)
         {
             Die();
         }
@@ -137,7 +151,12 @@ void AHyperSlashEnemy::GetHit(const FVector& Knockback)
             EffectRotation.Yaw += 180.0f;
             UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSpurt, GetActorLocation(), EffectRotation);
         }
-    }
+        // Notify the player
+        if (auto* Player = Cast<AHyperSlashCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
+        {
+            Player->EnemyHit();
+        }
+        }
 }
 
 void AHyperSlashEnemy::Die()
@@ -146,14 +165,13 @@ void AHyperSlashEnemy::Die()
     SetActorHiddenInGame(true);
     SetActorEnableCollision(false);
     GetWorld()->GetTimerManager().SetTimer(DestructionTimer, this, &AHyperSlashEnemy::DeferredDestroy, DeferredDestructionTime, false);
-
+    equippedWeapon->DisableHitbox();
+    equippedWeapon->Destroy();
     // Notify the player
     if (auto* Player = Cast<AHyperSlashCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
     {
-        Player->EnemyKilled();
+        Player->EnemyKilled(MaxHealth);
     }
-    equippedWeapon->DisableHitbox();
-    equippedWeapon->Destroy();
 }
 
 void AHyperSlashEnemy::PerformAttack()

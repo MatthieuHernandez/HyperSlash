@@ -71,6 +71,7 @@ void AHyperSlashCharacter::BeginPlay()
             equippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("hand_socket_r"));
         }
     }
+    health = MaxHealth;
 }
 
 void AHyperSlashCharacter::Tick(float DeltaSeconds)
@@ -186,8 +187,8 @@ void AHyperSlashCharacter::BeHit(Direction D)
     if (!canBeHit) return;
     canBeHit = false;
     canAct = false;
-    Health--;
-    if (Health <= 0)
+    health--;
+    if (health <= 0)
     {
         Die();
     }
@@ -230,18 +231,24 @@ void AHyperSlashCharacter::UpdateScoreStartAttack()
 
 void AHyperSlashCharacter::UpdateScoreEndAttack()
 {
-    if (numberOfEnemyKilledByPreviousAttack == 0)
+    if (numberOfEnemyHitByPreviousAttack == 0)
     {
         scoreMultiplier = (scoreMultiplier / 2);
     }
+    numberOfEnemyHitByPreviousAttack = 0;
     numberOfEnemyKilledByPreviousAttack = 0;
     OnScoreChanged.Broadcast(score, scoreMultiplier);
 }
 
-void AHyperSlashCharacter::EnemyKilled()
+void AHyperSlashCharacter::EnemyHit()
+{
+    numberOfEnemyHitByPreviousAttack++;
+}
+
+void AHyperSlashCharacter::EnemyKilled(int32 enemyScore)
 {
     numberOfEnemyKilledByPreviousAttack++;
-    score += (numberOfEnemyKilledByPreviousAttack + 1) * scoreMultiplier;
+    score += (numberOfEnemyKilledByPreviousAttack + 1) * enemyScore * scoreMultiplier;
     OnScoreChanged.Broadcast(score, scoreMultiplier);
 }
 

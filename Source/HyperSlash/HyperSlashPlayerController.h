@@ -89,4 +89,7 @@ protected:
     void OnDashAttack();
 
     void OnTeleportation();
+
+private:
+    bool canUseTeleportation;
 };

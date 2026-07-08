@@ -1,8 +1,9 @@
 #pragma once
-
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "ModeList.h"
 #include "HyperSlashSaveGame.generated.h"
+
 
 UCLASS()
 class HYPERSLASH_API UHyperSlashSaveGame : public USaveGame
@@ -31,4 +32,7 @@ public:
 
     UPROPERTY()
     int32 MaxScoreOnJungle;
+
+    UPROPERTY()
+    FModeList Modes;
 };

@@ -33,8 +33,10 @@ private:
     UFUNCTION()
     void EndDashAttack();
 
-
+    int32 numberOfEnemyHitByPreviousAttack = 0;
     int32 numberOfEnemyKilledByPreviousAttack = 0;
+
+    int32 health;
 
     /** The score multiplier increases with each successful attack. */
     int32 scoreMultiplier;
@@ -55,7 +57,7 @@ private:
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-    int32 Health = 5;
+    int32 MaxHealth = 5;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
     float DashSpeed = 1.0f;
@@ -106,7 +108,9 @@ public:
 
     void BeHit(Direction D);
 
-    void EnemyKilled();
+    void EnemyHit();
+
+    void EnemyKilled(int32 enemyScore);
 
     UFUNCTION()
     void Die();

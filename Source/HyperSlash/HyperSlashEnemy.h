@@ -20,6 +20,8 @@ private:
     bool wasHitRecently = false;
     bool isAttacking = false;
 
+    int32 health;
+
     AWeapon* equippedWeapon;
 
     void Die();
@@ -32,7 +34,7 @@ private:
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-    int32 Health = 1;
+    int32 MaxHealth = 3;
 
     UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     TSubclassOf<AWeapon> WeaponClass;

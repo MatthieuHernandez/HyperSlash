@@ -4,6 +4,7 @@
 #include "ModesUserWidget.generated.h"
 
 class UButton;
+class UCheckBox;
 class UMainMenuUserWidget;
 
 UCLASS(abstract)
@@ -19,7 +20,25 @@ protected:
     UPROPERTY(meta = (BindWidgetOptional))
     UButton* BackButton;
 
+    UPROPERTY(meta = (BindWidgetOptional))
+    UCheckBox* TeleportationCheckBox;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    UCheckBox* GlassEnemiesCheckBox;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    UCheckBox* PickupDefenseCheckBox;
+
 private:
     UFUNCTION()
     void OnBackClicked();
+
+    UFUNCTION()
+    void OnTeleportaionClicked(bool isChecked);
+
+    UFUNCTION()
+    void OnGlassEnemiesClicked(bool isChecked);
+
+    UFUNCTION()
+    void OnPickupDefenseClicked(bool isChecked);
 };
