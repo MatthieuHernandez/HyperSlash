@@ -14,5 +14,6 @@ void UGameOverUserWidget::NativeConstruct()
 void UGameOverUserWidget::OnBackClicked()
 {
     RemoveFromParent();
+    UGameplayStatics::SetGamePaused(this, false);
     UGameplayStatics::OpenLevel(this, FName("Lvl_Menu"));
 }
