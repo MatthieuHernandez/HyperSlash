@@ -25,4 +25,10 @@ public:
 
     UPROPERTY()
     uint32 VsyncIndex;
+
+    UPROPERTY()
+    int32 MaxScoreOnDesert;
+
+    UPROPERTY()
+    int32 MaxScoreOnJungle;
 };

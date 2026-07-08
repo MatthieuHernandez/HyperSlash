@@ -113,6 +113,8 @@ public:
 
     bool CanAct() const;
 
+    int32 GetScore() const;
+
     bool WantPerformCircularAttack;
     bool WantPerformDashAttack;
     bool WantPerformTeleportation;

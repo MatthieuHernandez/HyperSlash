@@ -5,6 +5,7 @@
 #include "InGameUserWidget.h"
 #include "HyperSlashCharacter.h"
 #include "MusicEngine.h"
+#include "HyperSlashGameInstance.h"
 
 AHyperSlashGameMode::AHyperSlashGameMode()
 {
@@ -20,8 +21,7 @@ void AHyperSlashGameMode::StartPlay()
         if (InGameWidget)
         {
             InGameWidget->AddToViewport();
-            auto* player = Cast<AHyperSlashCharacter>(PlayerController->GetPawn());
-            if (player)
+            if (auto* player = Cast<AHyperSlashCharacter>(PlayerController->GetPawn()))
             {
                 player->OnScoreChanged.AddDynamic(InGameWidget, &UInGameUserWidget::UpdateScore);
             }
@@ -59,6 +59,18 @@ void AHyperSlashGameMode::GameOver()
             FInputModeUIOnly InputMode;
             PlayerController->SetInputMode(InputMode);
             UGameplayStatics::SetGamePaused(GetWorld(), true);
+        }
+    }
+    if (auto* player = Cast<AHyperSlashCharacter>(PlayerController->GetPawn()))
+    {
+        if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+        {
+            const auto currentScore = player->GetScore();
+            const auto maxScore = gameInstance->Settings->MaxScoreOnDesert;
+            if (currentScore > maxScore)
+            {
+                gameInstance->Settings->MaxScoreOnDesert = currentScore;
+            }
         }
     }
 }

@@ -1,7 +1,9 @@
 #include "LevelUserWidget.h"
 #include "MainMenuUserWidget.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+#include "HyperSlashGameInstance.h"
 
 void ULevelUserWidget::NativeConstruct()
 {
@@ -10,6 +12,18 @@ void ULevelUserWidget::NativeConstruct()
     {
         DesertButton->OnClicked.AddDynamic(this, &ULevelUserWidget::OnDesertClicked);
         BackButton->OnClicked.AddDynamic(this, &ULevelUserWidget::OnBackClicked);
+    }
+    if (MaxScoreOnDesertText &&
+        MaxScoreOnJungleText)
+    {
+        if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+        {
+            FNumberFormattingOptions formatOptions;
+            formatOptions.MinimumIntegralDigits = 7;
+            formatOptions.UseGrouping = false;
+            MaxScoreOnDesertText->SetText(FText::AsNumber(gameInstance->Settings->MaxScoreOnDesert, &formatOptions));
+            MaxScoreOnJungleText->SetText(FText::AsNumber(gameInstance->Settings->MaxScoreOnJungle, &formatOptions));
+        }
     }
 }
 

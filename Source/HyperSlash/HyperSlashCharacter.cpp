@@ -258,3 +258,8 @@ bool AHyperSlashCharacter::CanAct() const
 {
     return canAct && !isDashing && !isAttacking && !isTeleporting;
 }
+
+int32 AHyperSlashCharacter::GetScore() const
+{
+    return score;
+}

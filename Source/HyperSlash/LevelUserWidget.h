@@ -4,6 +4,7 @@
 #include "LevelUserWidget.generated.h"
 
 class UButton;
+class UTextBlock;
 class UMainMenuUserWidget;
 
 UCLASS(abstract)
@@ -21,6 +22,12 @@ protected:
 
     UPROPERTY(meta = (BindWidgetOptional))
     UButton* BackButton;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    UTextBlock* MaxScoreOnDesertText;
+
+    UPROPERTY(meta = (BindWidgetOptional))
+    UTextBlock* MaxScoreOnJungleText;
 
 private:
     UFUNCTION()
