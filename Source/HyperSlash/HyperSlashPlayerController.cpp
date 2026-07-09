@@ -1,4 +1,5 @@
 #include "HyperSlashPlayerController.h"
+#include "HyperSlashGameInstance.h"
 #include "GameFramework/Pawn.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "NiagaraSystem.h"
@@ -43,6 +44,11 @@ void AHyperSlashPlayerController::BeginPlay()
     bShowMouseCursor = true;
     bEnableClickEvents = true;
     bEnableMouseOverEvents = true;
+
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+    {
+        canUseTeleportation = gameInstance->Settings->Modes.EnableTeleportation;
+    }
 }
 
 void AHyperSlashPlayerController::Tick(float DeltaSeconds)
@@ -53,7 +59,8 @@ void AHyperSlashPlayerController::Tick(float DeltaSeconds)
     if (auto* player = Cast<AHyperSlashCharacter>(GetPawn()))
     {
         FVector Delta = CachedDestination - player->GetActorLocation();
-        if (Delta.Size() >= DistanceMinBeforeTeleportation)
+        if (canUseTeleportation && 
+            Delta.Size() >= DistanceMinBeforeTeleportation)
         {
             OnTeleportation();
         }

@@ -1,6 +1,7 @@
 #include "HyperSlashEnemy.h"
 #include "HyperSlashGameMode.h"
 #include "HyperSlashCharacter.h"
+#include "HyperSlashGameInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StateTreeAIComponent.h"
@@ -12,11 +13,13 @@
 #include "Sound/SoundBase.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Weapon.h"
 
 // Sets default values
 AHyperSlashEnemy::AHyperSlashEnemy()
 {
     PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bStartWithTickEnabled = true;
 
     // ensure we spawn an AI controller when we're spawned
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -55,11 +58,29 @@ void AHyperSlashEnemy::BeginPlay()
     {
         GM->IncreaseEnemyCount();
     }
-    GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AHyperSlashEnemy::OnHit);
     if (DigUpDirt)
     {
         UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DigUpDirt, GetActorLocation());
     }
+    if (WeaponClass)
+    {
+        FActorSpawnParameters spawnParams;
+        spawnParams.Owner = this;
+        spawnParams.Instigator = this;
+        equippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, spawnParams);
+        if (equippedWeapon)
+        {
+            equippedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("hand_socket_r"));
+        }
+    }
+    if (auto* gameInstance = GetGameInstance<UHyperSlashGameInstance>())
+    {
+        if(gameInstance->Settings->Modes.EnableGlassEnemies)
+        {
+            MaxHealth = 1;
+        }
+    }
+    health = MaxHealth;
 }
 
 void AHyperSlashEnemy::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -68,10 +89,6 @@ void AHyperSlashEnemy::EndPlay(EEndPlayReason::Type EndPlayReason)
     GetWorld()->GetTimerManager().ClearTimer(DestructionTimer);
     if (auto* AI = Cast<AAIController>(GetController()))
     {
-        if (auto* Brain = AI->GetBrainComponent())
-        {
-            Brain->StopLogic(TEXT("Enemy destroyed"));
-        }
         AI->StopMovement();
     }
     Super::EndPlay(EndPlayReason);
@@ -86,72 +103,105 @@ void AHyperSlashEnemy::Destroyed()
     Super::Destroyed();
 }
 
-void AHyperSlashEnemy::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+void AHyperSlashEnemy::Tick(float DeltaSeconds)
 {
-    // have we collided against the player?
-    if (AHyperSlashCharacter* PlayerCharacter = Cast<AHyperSlashCharacter>(Other))
+    Super::Tick(DeltaSeconds);
+    if (CanAct())
     {
-        // apply damage to the character
-        // PlayerCharacter->HandleDamage(1.0f, GetActorForwardVector());
+        if (auto* player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+        {
+            if (AAIController* AI = Cast<AAIController>(GetController()))
+            {
+                AI->MoveToActor(player, 50.0f);
+            }
+            const auto distance = FVector::Dist(GetActorLocation(), player->GetActorLocation());
+            if (distance <= 120.0f)
+            {
+                FTimerHandle timer;
+                GetWorldTimerManager().SetTimer(timer, this, &AHyperSlashEnemy::PerformAttack, 0.35f, false);
+            }
+        }
     }
 }
 
-void AHyperSlashEnemy::ProjectileImpact(const FVector& ForwardVector)
+void AHyperSlashEnemy::GetHit(const FVector& Knockback)
 {
-    // only handle damage if we haven't been hit yet
-    if (bHit)
+    if (!wasHitRecently)
     {
-        return;
-    }
+        if (auto* AI = Cast<AAIController>(GetController()))
+        {
+            AI->StopMovement();
+        }
+        LaunchCharacter(Knockback * 1350.0f, true, false);
+        health--;
+        if (health <= 0)
+        {
+            Die();
+        }
+        wasHitRecently = true;
+        FTimerHandle timer;
+        GetWorldTimerManager().SetTimer(timer, [this]() { wasHitRecently = false; }, 0.4f, false);
+        if (DeathSound)
+        {
+            UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+        }
+        if (BloodSpurt)
+        {
+            auto EffectRotation = GetActorRotation();
+            EffectRotation.Yaw += 180.0f;
+            UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSpurt, GetActorLocation(), EffectRotation);
+        }
+        // Notify the player
+        if (auto* Player = Cast<AHyperSlashCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
+        {
+            Player->EnemyHit();
+        }
+        }
+}
 
-    // raise the hit flag
-    bHit = true;
-
-    // deactivate character movement
+void AHyperSlashEnemy::Die()
+{
     GetCharacterMovement()->Deactivate();
-
-    if (DeathSound)
-    {
-        UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
-    }
-    if (BloodSpurt)
-    {
-        auto EffectRotation = GetActorRotation();
-        EffectRotation.Yaw += 180.0f;
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSpurt, GetActorLocation(), EffectRotation);
-    }
-
-    // hide this actor
     SetActorHiddenInGame(true);
-
-    // disable collision
     SetActorEnableCollision(false);
-
-    // defer destruction
     GetWorld()->GetTimerManager().SetTimer(DestructionTimer, this, &AHyperSlashEnemy::DeferredDestroy, DeferredDestructionTime, false);
-
-
+    equippedWeapon->DisableHitbox();
+    equippedWeapon->Destroy();
     // Notify the player
     if (auto* Player = Cast<AHyperSlashCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0)))
     {
-        Player->EnemyKilled();
+        Player->EnemyKilled(MaxHealth);
     }
 }
 
-void AHyperSlashEnemy::StopStateTreeLogic()
+void AHyperSlashEnemy::PerformAttack()
 {
-    if (AAIController* AIController = Cast<AAIController>(GetController()))
+    if (!AttackAnimation) return;
+
+    isAttacking = true;
+    if (equippedWeapon)
     {
-        if (UStateTreeAIComponent* StateTreeComponent = AIController->FindComponentByClass<UStateTreeAIComponent>())
-        {
-            StateTreeComponent->StopLogic(TEXT("Enemy destroyed"));
-        }
+        equippedWeapon->EnableHitbox();
+    }
+    if (auto* animInstance = GetMesh()->GetAnimInstance())
+    {
+        animInstance->PlaySlotAnimationAsDynamicMontage(AttackAnimation, FName("DefaultSlot"), 0.0f, 0.0f);
+    }
+    FTimerHandle timer;
+    GetWorldTimerManager().SetTimer(timer, this, &AHyperSlashEnemy::EndAttack, AttackAnimation->GetPlayLength(), false);
+}
+
+void AHyperSlashEnemy::EndAttack()
+{
+    isAttacking = false;
+    if (equippedWeapon)
+    {
+        equippedWeapon->DisableHitbox();
     }
 }
 
 void AHyperSlashEnemy::DeferredDestroy()
 {
-    StopStateTreeLogic();
     Destroy();
 }
 
@@ -176,17 +226,18 @@ Direction AHyperSlashEnemy::GetHitDirection(AHyperSlashCharacter* Player)
     }
 }
 
-void AHyperSlashEnemy::OnHit(
-    UPrimitiveComponent* HitComponent,
-    AActor* OtherActor,
-    UPrimitiveComponent* OtherComp,
-    FVector NormalImpulse,
-    const FHitResult& Hit)
+void AHyperSlashEnemy::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    auto* Player = Cast<AHyperSlashCharacter>(OtherActor);
-    if (Player)
+    if (!isAttacking) return;
+    auto* player = Cast<AHyperSlashCharacter>(OtherActor);
+    if (player)
     {
-        Direction Dir = GetHitDirection(Player);
-        Player->BeHit(Dir);
+        auto direction = GetHitDirection(player);
+        player->BeHit(direction);
     }
+}
+
+bool AHyperSlashEnemy::CanAct() const
+{
+    return canAct && !wasHitRecently && !isAttacking;
 }

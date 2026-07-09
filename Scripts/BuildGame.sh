@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-UE_ROOT="/c/Program Files/Epic Games/UE_5.7"
+UE_ROOT="/c/Program Files/Epic Games/UE_5.8"
 PROJECT_ROOT="$(pwd)"
 PROJECT_FILE="$PROJECT_ROOT/HyperSlash.uproject"
 VERSION="${1:?Usage: ./build.sh <version>}"

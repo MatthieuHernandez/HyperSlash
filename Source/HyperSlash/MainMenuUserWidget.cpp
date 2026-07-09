@@ -1,17 +1,21 @@
 #include "MainMenuUserWidget.h"
+#include "LevelUserWidget.h"
+#include "ModesUserWidget.h"
 #include "SettingsUserWidget.h"
 #include "Components/Button.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void UMainMenuUserWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     if (PlayButton &&
-        QuitButton &&
-        SettingsButton)
+        ModesButton &&
+        SettingsButton &&
+        QuitButton)
     {
         PlayButton->OnClicked.AddDynamic(this, &UMainMenuUserWidget::OnPlayClicked);
+        ModesButton->OnClicked.AddDynamic(this, &UMainMenuUserWidget::OnModesClicked);
         SettingsButton->OnClicked.AddDynamic(this, &UMainMenuUserWidget::OnSettingsClicked);
         QuitButton->OnClicked.AddDynamic(this, &UMainMenuUserWidget::OnQuitClicked);
     }
@@ -19,19 +23,39 @@ void UMainMenuUserWidget::NativeConstruct()
 
 void UMainMenuUserWidget::OnPlayClicked()
 {
-    RemoveFromParent();
-    UGameplayStatics::OpenLevel(this, FName("Lvl_Desert"));
+    if (LevelMenuClass)
+    {
+        RemoveFromParent();
+        auto* widget = CreateWidget<ULevelUserWidget>(GetWorld(), LevelMenuClass);
+        if (widget)
+        {
+            widget->AddToViewport();
+        }
+    }
+}
+
+void UMainMenuUserWidget::OnModesClicked()
+{
+    if (ModesMenuClass)
+    {
+        RemoveFromParent();
+        auto* widget = CreateWidget<UModesUserWidget>(GetWorld(), ModesMenuClass);
+        if (widget)
+        {
+            widget->AddToViewport();
+        }
+    }
 }
 
 void UMainMenuUserWidget::OnSettingsClicked()
 {
-    RemoveFromParent();
     if (SettingsMenuClass)
     {
-        auto* SettingsWidget = CreateWidget<USettingsUserWidget>(GetWorld(), SettingsMenuClass);
-        if (SettingsWidget)
+        RemoveFromParent();
+        auto* widget = CreateWidget<USettingsUserWidget>(GetWorld(), SettingsMenuClass);
+        if (widget)
         {
-            SettingsWidget->AddToViewport();
+            widget->AddToViewport();
         }
     }
 }

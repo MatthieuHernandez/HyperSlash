@@ -1,4 +1,5 @@
 #include "Weapon.h"
+#include "HyperSlashCharacter.h"
 #include "HyperSlashEnemy.h"
 #include "Components/BoxComponent.h"
 
@@ -25,9 +26,22 @@ void AWeapon::Tick(float DeltaTime)
 
 void AWeapon::OnHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    if (AHyperSlashEnemy* Enemy = Cast<AHyperSlashEnemy>(OtherActor))
+    if (!OtherActor || OtherActor == GetOwner()) return; // To avoid hurting itself
+    if (auto* enemy = Cast<AHyperSlashEnemy>(OtherActor))
     {
-        Enemy->ProjectileImpact(FVector::ZeroVector);
+        if (auto* player = Cast<AHyperSlashCharacter>(GetOwner()))
+        {
+            auto knockback = (enemy->GetActorLocation() - player->GetActorLocation()).GetSafeNormal();
+            knockback.Z = 0.0f;
+            enemy->GetHit(knockback);
+        }
+    }
+    else if (auto* player = Cast<AHyperSlashCharacter>(OtherActor))
+    {
+        if (Cast<AHyperSlashEnemy>(GetOwner()))
+        {
+            player->BeHit(Direction::Front);
+        }
     }
 }
 
