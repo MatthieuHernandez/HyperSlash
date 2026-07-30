@@ -1,5 +1,5 @@
 // Desert
-setcpm(120)
+setcpm(GLOBAL_TEMPO)
 
 const kick_1 = sound("<[mt,sd] cp [mt,sd] cp>")
   .bank("akaimpc60")

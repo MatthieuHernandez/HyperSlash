@@ -27,7 +27,7 @@ void AHyperSlashGameMode::StartPlay()
             }
         }
     }
-    UMusicEngine* musicEngine = GetGameInstance()->GetSubsystem<UMusicEngine>();
+    auto* musicEngine = GetGameInstance()->GetSubsystem<UMusicEngine>();
     musicEngine->PlayDesertMusic();
 }
 

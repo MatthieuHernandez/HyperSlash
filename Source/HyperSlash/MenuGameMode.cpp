@@ -4,6 +4,6 @@
 void AMenuGameMode::StartPlay()
 {
     Super::StartPlay();
-    UMusicEngine* musicEngine = GetGameInstance()->GetSubsystem<UMusicEngine>();
+    auto* musicEngine = GetGameInstance()->GetSubsystem<UMusicEngine>();
     musicEngine->PlayMenuMusic();
 }

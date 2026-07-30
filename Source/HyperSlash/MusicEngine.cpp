@@ -66,11 +66,36 @@ void UMusicEngine::SetMasterVolume(float value, const FString& file)
     }
 }
 
+void UMusicEngine::SetGlobalTempo(int32 value, const FString& file)
+{
+    FString fileContent;
+    if (load(fileContent, *file))
+    {
+        const FRegexPattern Pattern(TEXT(R"(const\s+GLOBAL_TEMPO\s*=\s*[\d.]+;)"));
+        FRegexMatcher Matcher(Pattern, fileContent);
+        if (Matcher.FindNext())
+        {
+            FString Replacement = FString::Printf(TEXT("const GLOBAL_TEMPO = %i;"), value);
+            fileContent = fileContent.Left(Matcher.GetMatchBeginning())
+                + Replacement
+                + fileContent.Mid(Matcher.GetMatchEnding());
+            save(fileContent, *file);
+        }
+    }
+}
+
 void UMusicEngine::SetMasterVolume(float value)
 {
     SetMasterVolume(value, variablesFile);
     SetMasterVolume(value, liveFile);
 }
+
+void UMusicEngine::SetGlobalTempo(int32 value)
+{
+    SetGlobalTempo(value, variablesFile);
+    SetGlobalTempo(value, liveFile);
+}
+
 
 void UMusicEngine::PlayMenuMusic()
 {
@@ -84,4 +109,5 @@ void UMusicEngine::PlayDesertMusic()
     clearLive();
     copyIntoLive(variablesFile);
     copyIntoLive("desert.strudel");
+    SetGlobalTempo(60);
 }

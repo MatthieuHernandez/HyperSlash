@@ -22,7 +22,7 @@ void UHyperSlashGameInstance::Init()
 void UHyperSlashGameInstance::OnStart()
 {
     Super::OnStart();
-    UMusicEngine* musicEngine = GetSubsystem<UMusicEngine>();
+    auto* musicEngine = GetSubsystem<UMusicEngine>();
     if (musicEngine) {
         musicEngine->SetMasterVolume(Settings->MusicVolume);
     }

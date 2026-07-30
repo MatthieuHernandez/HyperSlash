@@ -1,1 +1,3 @@
-const MASTER_VOLUME = 0.00;
+const MASTER_VOLUME = 0.70;
+
+const GLOBAL_TEMPO = 61;

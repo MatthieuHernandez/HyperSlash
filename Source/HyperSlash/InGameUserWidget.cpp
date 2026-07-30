@@ -1,4 +1,5 @@
 #include "InGameUserWidget.h"
+#include "MusicEngine.h"
 #include "Components/TextBlock.h"
 #include "Engine/World.h"
 #include "HyperSlashGameMode.h"
@@ -48,6 +49,13 @@ void UInGameUserWidget::UpdateScore(int32 score, int32 scoreMultiplier)
     {
         ScoreText->SetText(FText::AsNumber(score, &formatOptions));
         ScoreMultiplierText->SetText(FText::Format(FText::FromString("x{0}"), scoreMultiplier));
+    }
+    if (auto* gameInstance = GetGameInstance())
+    {
+        if (auto* musicEngine = gameInstance->GetSubsystem<UMusicEngine>())
+        {
+            musicEngine->SetGlobalTempo(60 + scoreMultiplier);
+        }
     }
 }
 
